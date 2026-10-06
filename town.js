@@ -56,29 +56,35 @@
 
   const B = (o) => Object.assign({ occ: 0, chimneys: [], windows: true, lit: false }, o);
   const buildings = [
-    B({ id: "workshop", name: "Cogsworth Workshop", x: 1, y: 2, w: 5, d: 4, h: 30, wall: "#8f4b35", roof: { type: "gable", dir: "x", h: 14, color: "#4f8a78" }, door: { face: "y", u: 2.5 }, chim: [[1, 1, 26]], gear: { face: "x", v: 1.4, z: 18, r: 7, teeth: 10, speed: 1.4 }, sign: "gear" }),
-    B({ id: "cottageN", name: "Lamplighter's Cottage", x: 8, y: 3, w: 2, d: 3, h: 18, wall: "#8c8577", roof: { type: "gable", dir: "y", h: 10, color: "#3d4250" }, door: { face: "y", u: 0.5 }, chim: [[1.6, 0.6, 16]] }),
-    B({ id: "clock", name: "Clocktower", x: 10, y: 3, w: 3, d: 3, h: 74, wall: "#9b8f78", roof: { type: "spire", h: 34, color: "#4f8a78" }, door: { face: "y", u: 1.5 }, clock: true, windows: "tower" }),
-    B({ id: "boiler", name: "Boiler House", x: 16, y: 1, w: 4, d: 5, h: 34, wall: "#6f3a2a", roof: { type: "gable", dir: "y", h: 12, color: "#3d4250" }, door: { face: "y", u: 1.5 }, stack: { u: 1.2, v: 1.2, h: 92 }, gear: { face: "y", u: 3.1, z: 20, r: 9, teeth: 12, speed: -0.9 }, gauge: true }),
-    B({ id: "cottageNE", name: "Engineer's Cottage", x: 20, y: 3, w: 2, d: 3, h: 18, wall: "#7a5a3c", roof: { type: "gable", dir: "y", h: 10, color: "#b06a3b" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 16]] }),
-    B({ id: "bakery", name: "Bunsworth Bakery", x: 3, y: 7, w: 4, d: 3, h: 22, wall: "#c9a27a", roof: { type: "gable", dir: "x", h: 12, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 1.2, 18]], sign: "loaf" }),
-    B({ id: "house1", name: "Cogsworth House", x: 1, y: 11, w: 3, d: 3, h: 20, wall: "#8f6b4a", roof: { type: "gable", dir: "x", h: 12, color: "#3d4250" }, door: { face: "y", u: 1.5 }, chim: [[2.4, 0.8, 16]] }),
-    B({ id: "post", name: "Pneumatic Post Office", x: 16, y: 10, w: 4, d: 4, h: 26, wall: "#5d6b78", roof: { type: "flat", h: 4, color: "#4a4f5a" }, door: { face: "y", u: 1.5 }, tubes: true, sign: "letter" }),
-    B({ id: "house2", name: "Bunsworth House", x: 4, y: 16, w: 3, d: 3, h: 20, wall: "#b07a52", roof: { type: "gable", dir: "y", h: 12, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 2.2, 16]] }),
-    B({ id: "house3", name: "Postmistress's House", x: 4, y: 19, w: 3, d: 3, h: 20, wall: "#7d8a8f", roof: { type: "gable", dir: "y", h: 12, color: "#3d4250" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]] }),
-    B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#6b4e32", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug" }),
+    B({ id: "workshop", name: "Cogsworth Workshop", x: 1, y: 2, w: 5, d: 4, h: 30, wall: "#6e3a2a", roof: { type: "gable", dir: "x", h: 14, color: "#4f8a78" }, door: { face: "y", u: 2.5 }, chim: [[1, 1, 26]], gear: { face: "x", v: 1.4, z: 18, r: 7, teeth: 10, speed: 1.4 }, sign: "gear", ports: true, tesla: true, pipe: true }),
+    B({ id: "cottageN", name: "Lamplighter's Cottage", x: 8, y: 3, w: 2, d: 3, h: 18, wall: "#7a6450", roof: { type: "gable", dir: "y", h: 10, color: "#3a3632" }, door: { face: "y", u: 0.5 }, chim: [[1.6, 0.6, 16]], turbine: true }),
+    B({ id: "clock", name: "Clocktower", x: 10, y: 3, w: 3, d: 3, h: 74, wall: "#8a7658", roof: { type: "spire", h: 34, color: "#4f8a78" }, door: { face: "y", u: 1.5 }, clock: true, windows: "tower", plates: true }),
+    B({ id: "boiler", name: "Boiler House", x: 16, y: 1, w: 4, d: 5, h: 34, wall: "#5a2e22", roof: { type: "gable", dir: "y", h: 12, color: "#3a3632" }, door: { face: "y", u: 1.5 }, stack: { u: 1.2, v: 1.2, h: 92 }, gear: { face: "y", u: 3.1, z: 20, r: 9, teeth: 12, speed: -0.9 }, gauge: true, ports: true, plates: true, pipe: true }),
+    B({ id: "cottageNE", name: "Engineer's Cottage", x: 20, y: 3, w: 2, d: 3, h: 18, wall: "#6b4a30", roof: { type: "gable", dir: "y", h: 10, color: "#b06a3b" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 16]], horn: true }),
+    B({ id: "bakery", name: "Bunsworth Bakery", x: 3, y: 7, w: 4, d: 3, h: 22, wall: "#a8784e", roof: { type: "gable", dir: "x", h: 12, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 1.2, 18]], sign: "loaf", pipe: true, gear: { face: "y", u: 3.2, z: 14, r: 5, teeth: 8, speed: 0.8 } }),
+    B({ id: "house1", name: "Cogsworth House", x: 1, y: 11, w: 3, d: 3, h: 20, wall: "#7a5038", roof: { type: "gable", dir: "x", h: 12, color: "#4f8a78" }, door: { face: "y", u: 1.5 }, chim: [[2.4, 0.8, 16]], turbine: true, pipe: true }),
+    B({ id: "post", name: "Pneumatic Post Office", x: 16, y: 10, w: 4, d: 4, h: 26, wall: "#4e5a5e", roof: { type: "flat", h: 4, color: "#3a3632" }, door: { face: "y", u: 1.5 }, tubes: true, sign: "letter", ports: true, plates: true }),
+    B({ id: "house2", name: "Bunsworth House", x: 4, y: 16, w: 3, d: 3, h: 20, wall: "#9a6440", roof: { type: "gable", dir: "y", h: 12, color: "#3a3632" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 2.2, 16]], pipe: true }),
+    B({ id: "house3", name: "Postmistress's House", x: 4, y: 19, w: 3, d: 3, h: 20, wall: "#5e6466", roof: { type: "gable", dir: "y", h: 12, color: "#b06a3b" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]], horn: true, plates: true }),
+    B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
   for (const b of buildings) {
     b.doorTile = b.door.face === "y" ? [b.x + Math.floor(b.door.u), b.y + b.d] : [b.x + b.w, b.y + Math.floor(b.door.v)];
     b.chimneys = (b.chim || []).map(([u, v, top]) => ({ x: b.x + u, y: b.y + v, z: b.h + top }));
     if (b.stack) b.chimneys.push({ x: b.x + b.stack.u + 0.4, y: b.y + b.stack.v + 0.4, z: b.stack.h + 2, big: true });
+    // wall pipe with a valve near the front corner of the +x face; the valve hisses now and then
+    if (b.pipe) b.valve = { x: b.x + b.w + 0.08, y: b.y + b.d - 0.3, z: 12 };
   }
 
   // small props: trees, lamps, fountain, etc. Each blocks its tile.
   const props = [];
   const prop = (kind, x, y, extra) => props.push(Object.assign({ kind, x, y }, extra));
-  [[9, 8], [13, 8], [9, 12], [13, 12], [17, 8], [19, 8], [1, 17], [2, 20], [8, 20], [12, 21], [8, 17], [0, 1], [21, 8]].forEach(([x, y]) => prop("tree", x, y, { s: 0.85 + hash(x, y) * 0.35 }));
+  [[9, 8], [13, 8], [9, 12], [13, 12], [1, 17], [2, 20], [8, 20], [8, 17]].forEach(([x, y]) => prop("tree", x, y, { s: 0.85 + hash(x, y) * 0.35 }));
+  prop("tank", 17, 8); prop("tank", 20, 1); prop("tank", 21, 2, { small: true }); prop("tank", 12, 21, { small: true });
+  prop("cogs", 19, 8); prop("cogs", 0, 9);
+  prop("turbine", 0, 1); prop("turbine", 21, 10);
+  prop("valve", 21, 8); prop("valve", 0, 15); prop("valve", 9, 21);
   prop("fountain", 11, 10);
   prop("bench", 11, 8); prop("bench", 11, 12);
   prop("coal", 21, 13);
@@ -324,8 +330,8 @@
 
   // ---------------------------------------------------------------- time of day
   // light keyframes: minute, darkness alpha, tint
-  const LIGHT = [[0, 0.66, "#0b1030"], [300, 0.66, "#0b1030"], [360, 0.32, "#4a2a40"], [420, 0.05, "#ffb070"], [480, 0, "#ffffff"], [1050, 0, "#ffffff"], [1110, 0.12, "#ff9050"], [1170, 0.4, "#3a2050"], [1260, 0.66, "#0b1030"], [1440, 0.66, "#0b1030"]];
-  const SKY = [[0, "#0a0d1e", "#151a33"], [300, "#0a0d1e", "#151a33"], [360, "#3a2a4a", "#c26a4a"], [420, "#6a8aa8", "#f0b880"], [540, "#7aa6c4", "#d9e4dc"], [1020, "#7aa6c4", "#d9e4dc"], [1110, "#5a5a8a", "#f08850"], [1170, "#2a2350", "#8a4060"], [1260, "#0a0d1e", "#151a33"], [1440, "#0a0d1e", "#151a33"]];
+  const LIGHT = [[0, 0.68, "#140c08"], [300, 0.68, "#140c08"], [360, 0.34, "#3a2014"], [420, 0.06, "#c07a3a"], [480, 0, "#ffffff"], [1050, 0, "#ffffff"], [1110, 0.14, "#b0582a"], [1170, 0.42, "#2e160c"], [1260, 0.68, "#140c08"], [1440, 0.68, "#140c08"]];
+  const SKY = [[0, "#0e0906", "#21150c"], [300, "#0e0906", "#21150c"], [360, "#2e1a10", "#8a4a24"], [420, "#6a4a2e", "#c08a52"], [540, "#8a6a46", "#d2b07c"], [1020, "#8a6a46", "#d2b07c"], [1110, "#5a321c", "#c06a30"], [1170, "#2e1a10", "#6a3418"], [1260, "#0e0906", "#21150c"], [1440, "#0e0906", "#21150c"]];
   function sample(keys, m) {
     for (let i = 0; i < keys.length - 1; i++) {
       if (m >= keys[i][0] && m <= keys[i + 1][0]) {
@@ -364,44 +370,113 @@
   function tile(c, x, y, fill, edge) {
     poly(c, [P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)], fill, edge);
   }
+  // brass street grates; some of them vent steam
+  const grates = [];
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (isStreet(x, y) && y !== 14 && hash(x * 5, y * 3) > 0.9) grates.push({ x: x + 0.5, y: y + 0.5 });
+
+  // overhead copper pipes on iron stilts, cut into unit pieces so they depth-sort correctly
+  const PIPE_Z = 30;
+  const pipeRuns = [[[16.4, 6.04], [5.7, 6.04]], [[15.04, 6.04], [15.04, 13.6]], [[7.04, 6.04], [7.04, 7.6]]];
+  const pipePieces = [];
+  pipeRuns.forEach(([[ax, ay], [bx, by]], run) => {
+    const len = Math.hypot(bx - ax, by - ay), n = Math.ceil(len);
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n;
+      const p0 = [lerp(ax, bx, t0), lerp(ay, by, t0)], p1 = [lerp(ax, bx, t1), lerp(ay, by, t1)];
+      pipePieces.push({ p0, p1, support: i % 3 === 1, drop: run > 0 && i === n - 1,
+        x0: Math.min(p0[0], p1[0]) - 0.04, x1: Math.max(p0[0], p1[0]) + 0.04, y0: Math.min(p0[1], p1[1]) - 0.04, y1: Math.max(p0[1], p1[1]) + 0.04 });
+    }
+  });
+  function drawPipe(q) {
+    const a = P(q.p0[0], q.p0[1], PIPE_Z), b = P(q.p1[0], q.p1[1], PIPE_Z);
+    if (q.support) {
+      const mx = (q.p0[0] + q.p1[0]) / 2, my = (q.p0[1] + q.p1[1]) / 2, g = P(mx, my, 0), tp = P(mx, my, PIPE_Z);
+      ctx.fillStyle = "#2e2a26"; ctx.fillRect(Math.round(g[0]) - 1, Math.round(tp[1]), 2, Math.round(g[1] - tp[1]));
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(g[0]) - 2, Math.round(g[1]) - 1, 4, 1);
+    }
+    ctx.lineCap = "round";
+    for (const [lw, col, dy] of [[5, "#2a1a10", 0], [3, "#a8602e", 0], [1, "#e0a060", -1]]) { ctx.lineWidth = lw; ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(a[0], a[1] + dy); ctx.lineTo(b[0], b[1] + dy); ctx.stroke(); }
+    ctx.lineWidth = 1; ctx.lineCap = "butt";
+    ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(a[0]) - 1, Math.round(a[1]) - 3, 3, 6);
+    if (q.drop) { const g = P(q.p1[0], q.p1[1], 0); ctx.fillStyle = "#2a1a10"; ctx.fillRect(Math.round(b[0]) - 2, Math.round(b[1]), 5, Math.round(g[1] - b[1])); ctx.fillStyle = "#a8602e"; ctx.fillRect(Math.round(b[0]) - 1, Math.round(b[1]), 3, Math.round(g[1] - b[1])); ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(g[0]) - 3, Math.round(g[1]) - 2, 7, 2); }
+  }
+
+  // an iso-projected gear outline on the ground (tile coordinates)
+  function groundGear(c, gx, gy, r, teeth, fill, stroke) {
+    c.beginPath();
+    for (let i = 0; i <= teeth * 4; i++) {
+      const a = ((i + 0.5) / (teeth * 4)) * Math.PI * 2, rr = i % 4 < 2 ? r : r * 0.8;
+      const [px, py] = P(gx + Math.cos(a) * rr, gy + Math.sin(a) * rr);
+      i ? c.lineTo(px, py) : c.moveTo(px, py);
+    }
+    c.closePath(); c.fillStyle = fill; c.fill(); c.strokeStyle = stroke; c.stroke();
+  }
+
   function drawGround() {
     const c = ground.getContext("2d");
     c.clearRect(0, 0, BW, BH);
-    // earth skirt under the map
-    poly(c, [P(0, N), P(N, N), P(N, N, -14), P(0, N, -14)], "#3a2b1e");
-    poly(c, [P(N, 0), P(N, N), P(N, N, -14), P(N, 0, -14)], "#2c2016");
+    // the town sits on a riveted iron plinth
+    const D = 24;
+    poly(c, [P(0, N), P(N, N), P(N, N, -D), P(0, N, -D)], "#3b2e22");
+    poly(c, [P(N, 0), P(N, N), P(N, N, -D), P(N, 0, -D)], "#2a2018");
+    for (const [a0, a1] of [[P(0, N), P(N, N)], [P(N, 0), P(N, N)]]) {
+      // brass band under the rim and a lower band
+      for (const dz of [1, D - 3]) {
+        poly(c, [[a0[0], a0[1] + dz], [a1[0], a1[1] + dz], [a1[0], a1[1] + dz + 2], [a0[0], a0[1] + dz + 2]], dz === 1 ? "#b8893a" : "#7a5a26");
+      }
+      // rivets and plate seams
+      for (let k = 0; k <= N * 2; k++) {
+        const t = k / (N * 2), x = lerp(a0[0], a1[0], t), y = lerp(a0[1], a1[1], t);
+        c.fillStyle = "#c9a54a"; c.fillRect(Math.round(x), Math.round(y + 6), 1, 1); c.fillRect(Math.round(x), Math.round(y + D - 6), 1, 1);
+        if (k % 4 === 0) { c.fillStyle = "rgba(0,0,0,0.35)"; c.fillRect(Math.round(x), Math.round(y + 3), 1, D - 6); }
+      }
+    }
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const r = hash(x, y);
       let fill;
-      if (isStreet(x, y)) fill = mix("#7d7468", "#8f8576", r);
-      else if (isPlaza(x, y)) fill = (x + y) % 2 ? mix("#a39782", "#ada08a", r) : mix("#958a76", "#a09480", r);
-      else if (isDock(x, y)) fill = mix("#6b4e32", "#77583a", r);
-      else fill = mix("#4f6038", "#5c6e40", r);
-      tile(c, x, y, fill, "rgba(0,0,0,0.12)");
+      if (isStreet(x, y)) fill = mix("#5e5850", "#6c655a", r);
+      else if (isPlaza(x, y)) fill = (x + y) % 2 ? mix("#8a7a62", "#94846a", r) : mix("#7a6c56", "#857660", r);
+      else if (isDock(x, y)) fill = mix("#5e4430", "#6b4e36", r);
+      else fill = mix("#4f3e2c", "#5c4934", r);
+      tile(c, x, y, fill, "rgba(0,0,0,0.14)");
       const [cx, cy] = P(x + 0.5, y + 0.5);
       if (isStreet(x, y) || isPlaza(x, y)) {
         for (let k = 0; k < 6; k++) {
           const a = hash(x * 7 + k, y * 13 + k), b = hash(y * 5 + k, x * 11 + k);
-          c.fillStyle = k % 2 ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.12)";
+          c.fillStyle = k % 2 ? "rgba(255,230,190,0.08)" : "rgba(0,0,0,0.16)";
           c.fillRect(Math.round(cx + (a - 0.5) * 18), Math.round(cy + (b - 0.5) * 8), 2, 1);
         }
       } else if (isDock(x, y)) {
-        c.strokeStyle = "rgba(0,0,0,0.25)";
+        c.strokeStyle = "rgba(0,0,0,0.3)";
         for (let k = 1; k < 4; k++) { const [a1, b1] = P(x + k / 4, y), [a2, b2] = P(x + k / 4, y + 1); c.beginPath(); c.moveTo(a1, b1); c.lineTo(a2, b2); c.stroke(); }
+        c.fillStyle = "#3a3a3f"; c.fillRect(Math.round(cx - 6), Math.round(cy - 1), 1, 1); c.fillRect(Math.round(cx + 6), Math.round(cy + 1), 1, 1);
       } else {
-        for (let k = 0; k < 3; k++) {
+        // cinders, rust flakes and the odd tuft of soot-grey moss
+        for (let k = 0; k < 5; k++) {
           const a = hash(x * 3 + k, y * 17 + k), b = hash(y * 3 + k, x * 19 + k);
-          c.fillStyle = k ? "rgba(140,170,90,0.5)" : "rgba(30,40,20,0.35)";
-          c.fillRect(Math.round(cx + (a - 0.5) * 20), Math.round(cy + (b - 0.5) * 8), 1, 2);
+          c.fillStyle = ["rgba(20,14,10,0.45)", "rgba(150,80,40,0.45)", "rgba(120,110,70,0.45)", "rgba(200,170,120,0.18)", "rgba(20,14,10,0.3)"][k];
+          c.fillRect(Math.round(cx + (a - 0.5) * 22), Math.round(cy + (b - 0.5) * 9), k === 2 ? 1 : 2, k === 2 ? 2 : 1);
         }
       }
     }
+    // brass gear mosaic in the square
+    groundGear(c, 11.5, 10.5, 3.2, 14, "#a8803a", "#4a3212");
+    const ring = (r, fill) => { c.beginPath(); for (let i = 0; i <= 48; i++) { const a = (i / 48) * Math.PI * 2, [px, py] = P(11.5 + Math.cos(a) * r, 10.5 + Math.sin(a) * r); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.closePath(); c.fillStyle = fill; c.fill(); c.strokeStyle = "#4a3212"; c.stroke(); };
+    ring(2.25, "#7d6e58");
+    for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; poly(c, [P(11.5 + Math.cos(a - 0.12) * 0.9, 10.5 + Math.sin(a - 0.12) * 0.9), P(11.5 + Math.cos(a - 0.05) * 2.25, 10.5 + Math.sin(a - 0.05) * 2.25), P(11.5 + Math.cos(a + 0.05) * 2.25, 10.5 + Math.sin(a + 0.05) * 2.25), P(11.5 + Math.cos(a + 0.12) * 0.9, 10.5 + Math.sin(a + 0.12) * 0.9)], "#a8803a", "#4a3212"); }
+    ring(0.95, "#a8803a");
+    // street grates
+    for (const g of grates) {
+      poly(c, [P(g.x - 0.22, g.y - 0.22), P(g.x + 0.22, g.y - 0.22), P(g.x + 0.22, g.y + 0.22), P(g.x - 0.22, g.y + 0.22)], "#2a221a", "#b8893a");
+      for (const o of [-0.1, 0, 0.1]) { const [a1, b1] = P(g.x + o, g.y - 0.2), [a2, b2] = P(g.x + o, g.y + 0.2); c.strokeStyle = "#8a6a2a"; c.beginPath(); c.moveTo(a1, b1); c.lineTo(a2, b2); c.stroke(); }
+    }
     // tram rails along y = 14
     for (let x = 0; x < N; x++) {
-      for (const s of [0.15, 0.55, 0.85]) { const [a, b] = P(x + s, 14.25), [a2, b2] = P(x + s, 14.75); c.strokeStyle = "#4a3a2a"; c.beginPath(); c.moveTo(a, b); c.lineTo(a2, b2); c.stroke(); }
+      for (const s of [0.15, 0.55, 0.85]) { const [a, b] = P(x + s, 14.25), [a2, b2] = P(x + s, 14.75); c.strokeStyle = "#3a2c20"; c.beginPath(); c.moveTo(a, b); c.lineTo(a2, b2); c.stroke(); }
     }
-    for (const r of [14.32, 14.68]) { const [a, b] = P(0, r), [a2, b2] = P(N, r); c.strokeStyle = "#b8b0a0"; c.beginPath(); c.moveTo(a, b); c.lineTo(a2, b2); c.stroke(); }
+    for (const r of [14.32, 14.68]) { const [a, b] = P(0, r), [a2, b2] = P(N, r); c.strokeStyle = "#a89a84"; c.beginPath(); c.moveTo(a, b); c.lineTo(a2, b2); c.stroke(); }
   }
+
 
   // ---------------------------------------------------------------- drawing: shapes
   function box(x, y, z, w, d, h, color, o = {}) {
@@ -449,6 +524,22 @@
       let [a, c] = [P(x, y + d, z), P(x + w, y + d, z)]; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...c); ctx.stroke();
       [a, c] = [P(x + w, y, z), P(x + w, y + d, z)]; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...c); ctx.stroke();
     }
+    // riveted iron plating seams
+    if (b.plates) {
+      for (const face of ["y", "x"]) {
+        const len = face === "y" ? w : d;
+        for (let a = 1; a < len; a += 1) faceQuad(b, face, a, 3, 0.03, h - 3, "rgba(0,0,0,0.28)");
+        for (let a = 0.08; a < len; a += 1) for (let z = 7; z < h - 2; z += 6) faceQuad(b, face, a + 0.84, z, 0.05, 1, "rgba(232,200,112,0.55)");
+      }
+    }
+    // brass bands with rivets at the base and the eaves
+    for (const z of [3, h - 3]) {
+      for (const face of ["y", "x"]) {
+        const len = face === "y" ? w : d;
+        faceQuad(b, face, len / 2, z, len, 2, face === "y" ? "#b8893a" : "#8a6a2a");
+        for (let a = 0.17; a < len; a += 0.33) faceQuad(b, face, a, z + 0.5, 0.05, 1, "#f0d890");
+      }
+    }
     // windows
     const wc = windowColor(b, night, m);
     const lit = wc === "#ffd27a" || wc === "#ffcf6a";
@@ -459,8 +550,19 @@
       for (let a = 0.5; a < len; a += 1) {
         for (const z of rows) {
           if (face === b.door.face && Math.abs(a - doorA) < 0.6 && z < 16) continue;
-          faceQuad(b, face, a, z, 0.38, 7, wc, OUTLINE);
-          faceQuad(b, face, a, z + 3.5, 0.38, 0.6, "rgba(0,0,0,0.35)");
+          if (b.gear && face === b.gear.face && Math.abs(a - (face === "y" ? b.gear.u : b.gear.v)) < 0.9 && Math.abs(z + 3 - b.gear.z) < b.gear.r + 4) continue;
+          if (b.pipe && face === "x" && Math.abs(a - (d - 0.3)) < 0.4) continue;
+          if (b.ports && z === rows[rows.length - 1]) {
+            const [qx, qy] = face === "y" ? P(x + a, y + d, z + 3.5) : P(x + w, y + a, z + 3.5);
+            ctx.beginPath(); ctx.arc(qx, qy, 3.6, 0, Math.PI * 2); ctx.fillStyle = "#b8893a"; ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.stroke();
+            ctx.beginPath(); ctx.arc(qx, qy, 2.4, 0, Math.PI * 2); ctx.fillStyle = wc; ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.35)"; ctx.fillRect(Math.round(qx) - 1, Math.round(qy) - 2, 1, 1);
+          } else {
+            faceQuad(b, face, a, z, 0.38, 7, wc, OUTLINE);
+            faceQuad(b, face, a, z + 3.5, 0.38, 0.6, "rgba(0,0,0,0.35)");
+            faceQuad(b, face, a, z - 1, 0.48, 1, "#8a6a2a");
+            faceQuad(b, face, a, z + 7, 0.44, 1, "#8a6a2a");
+          }
           if (lit) { const [lx, ly] = face === "y" ? P(x + a, y + d, z + 4) : P(x + w, y + a, z + 4); lights.push({ x: lx, y: ly, r: 14, c: "255,200,110", a: 0.6 }); }
         }
       }
@@ -515,6 +617,8 @@
         ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(hr) * 3.5, cy + Math.sin(hr) * 3.5); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(mn) * 5.5, cy + Math.sin(mn) * 5.5); ctx.stroke();
         if (night) lights.push({ x: cx, y: cy, r: 16, c: "255,220,140", a: 0.7 });
+        gear(cx + 9, cy - 7, 3.5, 7, (m / 3) % (Math.PI * 2), "#c9a54a");
+        gear(cx - 9, cy + 6, 3, 6, -(m / 2) % (Math.PI * 2), "#b06a3b");
       }
     }
     // gear on a facade
@@ -553,6 +657,51 @@
         box(c.x - 0.25, c.y - 0.25, c.z - 2, 0.5, 0.5, 2, "#3a3a3f");
       }
     }
+    // copper wall pipe with a valve wheel
+    if (b.pipe) {
+      const v = d - 0.3, a0 = P(x + w + 0.06, y + v, 3), a1 = P(x + w + 0.06, y + v, h + 3), a2 = P(x + w - 0.3, y + v, h + 3);
+      ctx.lineCap = "round";
+      for (const [lw, col] of [[4, "#2a1a10"], [2, "#a8602e"]]) { ctx.lineWidth = lw; ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(...a0); ctx.lineTo(...a1); ctx.lineTo(...a2); ctx.stroke(); }
+      ctx.lineWidth = 1; ctx.lineCap = "butt";
+      for (let z = 8; z < h; z += 8) { const [jx, jy] = P(x + w + 0.06, y + v, z); ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(jx) - 2, Math.round(jy), 4, 1); }
+      const [vx, vy] = P(x + w + 0.06, y + v, 12);
+      ctx.strokeStyle = "#b8302a"; ctx.beginPath(); ctx.arc(vx + 3, vy, 2.5, 0, Math.PI * 2); ctx.stroke();
+      const va = t * 0.4; ctx.beginPath(); ctx.moveTo(vx + 3 + Math.cos(va) * 2.5, vy + Math.sin(va) * 2.5); ctx.lineTo(vx + 3 - Math.cos(va) * 2.5, vy - Math.sin(va) * 2.5); ctx.stroke();
+    }
+    // ridge point used by roof gadgets
+    const ridge = (f) => (r.dir === "x" ? [x + w * f, y + d / 2, h + rh] : [x + w / 2, y + d * f, h + rh]);
+    if (b.turbine) {
+      const [tx, ty] = P(...ridge(0.3)); const hx = Math.round(tx), hy = Math.round(ty - 12);
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(hx, Math.round(ty) - 12, 1, 12);
+      const spin = t * (2 + (b.occ ? 2 : 0));
+      ctx.strokeStyle = "#c9a54a"; ctx.lineWidth = 2;
+      for (let k = 0; k < 4; k++) { const a = spin + (k * Math.PI) / 2; ctx.beginPath(); ctx.moveTo(hx + 0.5, hy); ctx.lineTo(hx + 0.5 + Math.cos(a) * 7, hy + Math.sin(a) * 3.5); ctx.stroke(); }
+      ctx.lineWidth = 1; ctx.fillStyle = "#b06a3b"; ctx.fillRect(hx - 1, hy - 1, 3, 3);
+      ctx.fillStyle = "#8a6a2a"; ctx.fillRect(hx - 6, hy - 1, 4, 2);
+    }
+    if (b.horn) {
+      const [tx, ty] = P(...ridge(0.7)); const hx = Math.round(tx), hy = Math.round(ty);
+      ctx.fillStyle = "#8a6a2a"; ctx.fillRect(hx, hy - 7, 2, 7);
+      poly(ctx, [[hx + 1, hy - 8], [hx + 9, hy - 13], [hx + 9, hy - 3], [hx + 1, hy - 6]], "#d9a441", OUTLINE);
+      ctx.fillStyle = "#5a3a12"; ctx.fillRect(hx + 8, hy - 12, 1, 8);
+      if (m % 60 < 1.5 && Math.random() < 0.3) particles.push({ x: hx + 10, y: hy - 8, vx: 10, vy: -6, r: 1.5, life: 0, max: 1.4, color: "#efe8dc" });
+    }
+    if (b.tesla) {
+      const [cx0, cy0] = P(x + 3.7, y + d / 2, h + rh - 4);
+      const bx = Math.round(cx0), by = Math.round(cy0);
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(bx - 3, by - 2, 7, 3);
+      for (let k = 0; k < 7; k++) { ctx.fillStyle = k % 2 ? "#b06a3b" : "#6b3a1e"; ctx.fillRect(bx - 1, by - 4 - k * 2, 3, 2); }
+      ctx.fillStyle = "#c9a54a"; ctx.beginPath(); ctx.ellipse(bx + 0.5, by - 18, 5, 2, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#d9d4c8"; ctx.beginPath(); ctx.arc(bx + 0.5, by - 21, 2.5, 0, Math.PI * 2); ctx.fill();
+      if (b.occ > 0 && Math.random() < 0.45) {
+        ctx.strokeStyle = Math.random() < 0.5 ? "#bfe8ff" : "#ffffff"; ctx.beginPath();
+        let lx = bx + 0.5, ly = by - 21; ctx.moveTo(lx, ly);
+        const dir = Math.random() * Math.PI * 2;
+        for (let k = 0; k < 5; k++) { lx += Math.cos(dir) * 3 + (Math.random() - 0.5) * 5; ly += Math.sin(dir) * 2 + (Math.random() - 0.5) * 5; ctx.lineTo(lx, ly); }
+        ctx.stroke();
+        lights.push({ x: bx, y: by - 21, r: 20, c: "170,220,255", a: 0.9 });
+      }
+    }
     if (b.id === "tavern" && state.tavernOpen) {
       const [lx, ly] = P(x + w, y + doorA + 0.7, 15);
       ctx.fillStyle = "#ffcf6a"; ctx.fillRect(Math.round(lx) - 1, Math.round(ly) - 2, 3, 4);
@@ -567,17 +716,50 @@
       ctx.fillStyle = "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.ellipse(cx, cy, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = "#4a3324"; ctx.fillRect(cx - 1, cy - 12, 3, 12);
       const s = p.s, sway = Math.sin(t * 1.3 + x) * 0.6;
-      for (const [dx, dy, r, col] of [[0, -18, 8, "#3f5a2e"], [-4, -21, 6, "#4f6e38"], [4, -22, 6, "#4a6834"], [0, -26, 5, "#5d8040"]]) {
+      for (const [dx, dy, r, col] of [[0, -18, 8, "#6b3a22"], [-4, -21, 6, "#8a4a2a"], [4, -22, 6, "#7a4226"], [0, -26, 5, "#a8622e"]]) {
         ctx.beginPath(); ctx.arc(cx + dx * s + sway, cy + dy * s, r * s, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
       }
+    } else if (p.kind === "tank") {
+      const rx = p.small ? 7 : 10, ht = p.small ? 16 : 26;
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, rx + 2, (rx + 2) / 2, 0, 0, Math.PI * 2); ctx.fill();
+      const g = ctx.createLinearGradient(cx - rx, 0, cx + rx, 0);
+      g.addColorStop(0, "#d08a4a"); g.addColorStop(0.45, "#a8602e"); g.addColorStop(1, "#5a2e16");
+      ctx.fillStyle = g; ctx.fillRect(cx - rx, cy - ht, rx * 2, ht);
+      ctx.beginPath(); ctx.ellipse(cx, cy, rx, rx / 2, 0, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = "#c08048"; ctx.beginPath(); ctx.ellipse(cx, cy - ht, rx, rx / 2, 0, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.stroke();
+      for (const z of [4, ht / 2, ht - 3]) { ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - rx, Math.round(cy - z), rx * 2, 1); for (let k = -rx + 2; k < rx; k += 4) { ctx.fillStyle = "#f0d890"; ctx.fillRect(cx + k, Math.round(cy - z), 1, 1); } }
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(cx - 1, cy - ht - 5, 3, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - 2, cy - ht - 6, 5, 1);
+      if (!p.small) { ctx.beginPath(); ctx.arc(cx + 3, cy - ht / 2 - 4, 3, 0, Math.PI * 2); ctx.fillStyle = "#f3e6c8"; ctx.fill(); ctx.strokeStyle = "#c9a54a"; ctx.stroke(); ctx.strokeStyle = "#b8302a"; const a = -2 + Math.sin(t * 0.7 + x) * 0.6; ctx.beginPath(); ctx.moveTo(cx + 3, cy - ht / 2 - 4); ctx.lineTo(cx + 3 + Math.cos(a) * 2.5, cy - ht / 2 - 4 + Math.sin(a) * 2.5); ctx.stroke(); }
+    } else if (p.kind === "cogs") {
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 12, 5, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.3, y + 0.3, 0, 0.4, 0.4, 4, "#5a5248");
+      gear(cx - 2, cy - 15, 11, 12, t * 0.25 + x, "#b8893a");
+      gear(cx + 9, cy - 7, 6, 8, -t * 0.45 + x, "#a8602e");
+    } else if (p.kind === "turbine") {
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 7, 3, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#2e2a26"; ctx.beginPath(); ctx.moveTo(cx - 4, cy); ctx.lineTo(cx, cy - 34); ctx.lineTo(cx + 4, cy); ctx.stroke();
+      for (let z = 8; z < 32; z += 8) { ctx.beginPath(); ctx.moveTo(cx - 4 + z / 8, cy - z); ctx.lineTo(cx + 4 - z / 8, cy - z); ctx.stroke(); }
+      const hx = cx, hy = cy - 35, spin = t * 1.6 + x;
+      ctx.strokeStyle = "#c9a54a"; ctx.lineWidth = 2;
+      for (let k = 0; k < 6; k++) { const a = spin + (k * Math.PI) / 3; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + Math.cos(a) * 11, hy + Math.sin(a) * 11); ctx.stroke(); }
+      ctx.lineWidth = 1; ctx.fillStyle = "#b06a3b"; ctx.beginPath(); ctx.arc(hx, hy, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#8a6a2a"; ctx.fillRect(hx - 1, hy - 1, 7, 2); poly(ctx, [[hx + 6, hy - 4], [hx + 10, hy], [hx + 6, hy + 3]], "#8a6a2a");
+    } else if (p.kind === "valve") {
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.lineCap = "round";
+      for (const [lw, col] of [[5, "#2a1a10"], [3, "#a8602e"]]) { ctx.lineWidth = lw; ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(cx - 6, cy + 1); ctx.lineTo(cx - 2, cy - 1); ctx.lineTo(cx - 2, cy - 12); ctx.lineTo(cx + 5, cy - 15); ctx.stroke(); }
+      ctx.lineWidth = 1; ctx.lineCap = "butt";
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - 4, cy - 8, 5, 2);
+      ctx.strokeStyle = "#b8302a"; ctx.beginPath(); ctx.ellipse(cx - 2, cy - 13, 4, 1.6, 0, 0, Math.PI * 2); ctx.stroke();
     } else if (p.kind === "lamp") {
       ctx.fillStyle = "#2a2a2e"; ctx.fillRect(cx - 1, cy - 22, 2, 22); ctx.fillRect(cx - 2, cy - 2, 4, 2);
       ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - 3, cy - 27, 6, 1); ctx.fillRect(cx - 2, cy - 29, 4, 2);
       ctx.fillStyle = p.lit ? "#ffe08a" : "#4a5058"; ctx.fillRect(cx - 2, cy - 26, 4, 4);
       if (p.lit) lights.push({ x: cx, y: cy - 24, r: 30, c: "255,210,120", a: 1 });
     } else if (p.kind === "fountain") {
-      box(x + 0.1, y + 0.1, 0, 0.8, 0.8, 4, "#8a8174");
-      poly(ctx, [P(x + 0.2, y + 0.2, 4), P(x + 0.8, y + 0.2, 4), P(x + 0.8, y + 0.8, 4), P(x + 0.2, y + 0.8, 4)], "#4f7f9a");
+      box(x + 0.1, y + 0.1, 0, 0.8, 0.8, 4, "#a8602e");
+      box(x + 0.08, y + 0.08, 4, 0.84, 0.84, 1, "#c9a54a");
+      poly(ctx, [P(x + 0.2, y + 0.2, 5), P(x + 0.8, y + 0.2, 5), P(x + 0.8, y + 0.8, 5), P(x + 0.2, y + 0.8, 5)], "#4f6e6a");
       ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - 1, cy - 14, 3, 10);
       gear(cx + 0.5, cy - 14, 3, 6, t * 0.8, "#c9a54a");
       for (let k = 0; k < 6; k++) {
@@ -710,6 +892,7 @@
     for (const p of props) items.push({ x0: p.x + 0.1, y0: p.y + 0.1, x1: p.x + 0.9, y1: p.y + 0.9, h: p.kind === "mast" ? 80 : 40, draw: () => drawProp(p, m, t) });
     for (const p of people) if (!p.inside) items.push({ x0: p.x - 0.15, y0: p.y - 0.15, x1: p.x + 0.15, y1: p.y + 0.15, h: 24, draw: () => drawPerson(p) });
     items.push({ x0: tram.x - 0.8, y0: 14.18, x1: tram.x + 0.8, y1: 14.82, h: 30, draw: () => drawTram(m) });
+    for (const q of pipePieces) items.push({ x0: q.x0, y0: q.y0, x1: q.x1, y1: q.y1, h: PIPE_Z + 6, draw: () => drawPipe(q) });
     for (const it of items) {
       const l = P(it.x0, it.y1)[0], r = P(it.x1, it.y0)[0], b = P(it.x1, it.y1)[1], top = P(it.x0, it.y0, it.h)[1];
       it.sb = [l, top, r, b];
@@ -778,6 +961,32 @@
   const toScreen = (bx, by) => [(bx - cam.x) * cam.zoom + W / 2, (by - cam.y) * cam.zoom + H / 2];
   const toBuf = (sx, sy) => [(sx - W / 2) / cam.zoom + cam.x, (sy - H / 2) / cam.zoom + cam.y];
 
+  // a far-off industrial skyline: chimneys, domes, gasometers and a giant gear
+  const skyline = document.createElement("canvas");
+  skyline.width = 1600; skyline.height = 220;
+  (function buildSkyline() {
+    const c = skyline.getContext("2d");
+    const layer = (seed, base, col, scale) => {
+      c.fillStyle = col;
+      let x = 0;
+      while (x < skyline.width) {
+        const r = hash(x + seed, seed), w = (20 + r * 60) * scale, kind = Math.floor(hash(seed, x) * 6);
+        const h = (40 + hash(x, seed * 3) * 70) * scale;
+        c.fillRect(x, base - h, w, h);
+        if (kind === 0) { c.fillRect(x + w * 0.3, base - h - 50 * scale, 8 * scale, 50 * scale); c.fillRect(x + w * 0.65, base - h - 34 * scale, 6 * scale, 34 * scale); }
+        if (kind === 1) { c.beginPath(); c.arc(x + w / 2, base - h, w / 2, Math.PI, 0); c.fill(); c.fillRect(x + w / 2 - 1, base - h - w / 2 - 12 * scale, 2, 12 * scale); }
+        if (kind === 2) { c.beginPath(); c.moveTo(x, base - h); c.lineTo(x + w / 2, base - h - 30 * scale); c.lineTo(x + w, base - h); c.fill(); }
+        if (kind === 3) { const r2 = 26 * scale; c.beginPath(); for (let i = 0; i < 32; i++) { const a = (i / 32) * Math.PI * 2, rr = i % 2 ? r2 : r2 * 0.82; c.lineTo(x + w / 2 + Math.cos(a) * rr, base - h - r2 * 0.6 + Math.sin(a) * rr); } c.fill(); }
+        if (kind === 4) { c.fillRect(x - 4 * scale, base - h * 0.6, w + 8 * scale, h * 0.6); c.fillRect(x + w / 2 - 2, base - h - 70 * scale, 4 * scale, 70 * scale); }
+        x += w + hash(seed, x * 7) * 18 * scale;
+      }
+      c.fillRect(0, base, skyline.width, skyline.height - base);
+    };
+    layer(11, 190, "rgba(70,44,26,0.55)", 0.8);
+    layer(37, 205, "rgba(46,28,16,0.85)", 1.1);
+  })();
+  const haze = Array.from({ length: 6 }, (_, i) => ({ x: hash(i, 9) * 1.4 - 0.2, y: 0.15 + hash(9, i) * 0.4, r: 120 + hash(i, i) * 160, v: 0.004 + hash(i, 2) * 0.006 }));
+
   function present(now) {
     const m = state.min % 1440;
     const [top, bottom] = sample(SKY, m);
@@ -787,12 +996,33 @@
     vctx.fillStyle = g; vctx.fillRect(0, 0, view.width, view.height);
     vctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     if (isNight(m)) {
-      vctx.fillStyle = "rgba(255,250,230,0.7)";
+      vctx.fillStyle = "rgba(255,235,200,0.55)";
       for (let i = 0; i < 70; i++) { const sx = hash(i, 1) * W, sy = hash(1, i) * H * 0.6; if (Math.sin(now / 700 + i) > -0.6) vctx.fillRect(Math.round(sx), Math.round(sy), 1, 1); }
+    }
+    // far skyline with a little parallax, then drifting smog
+    const night = isNight(m), dusk = sample(LIGHT, m)[0] / 0.68;
+    const horizon = toScreen(0, OY + N * TH * 0.55)[1];
+    const sx0 = (-(cam.x - BW / 2) * cam.zoom * 0.25) % skyline.width;
+    vctx.globalAlpha = 1 - dusk * 0.55;
+    for (let k = -1; k <= Math.ceil(W / skyline.width) + 1; k++) vctx.drawImage(skyline, sx0 + k * skyline.width, horizon - skyline.height, skyline.width, skyline.height);
+    vctx.fillStyle = "rgba(46,28,16,0.85)"; vctx.fillRect(0, horizon - 1, W, H - horizon + 1);
+    vctx.globalAlpha = 1;
+    for (const h of haze) {
+      const hx = (((h.x + now / 1000 * h.v) % 1.4) - 0.2) * W, hy = h.y * H;
+      const g2 = vctx.createRadialGradient(hx, hy, 0, hx, hy, h.r);
+      g2.addColorStop(0, night ? "rgba(40,26,16,0.25)" : "rgba(150,110,70,0.22)"); g2.addColorStop(1, "rgba(0,0,0,0)");
+      vctx.fillStyle = g2; vctx.fillRect(hx - h.r, hy - h.r, h.r * 2, h.r * 2);
     }
     vctx.imageSmoothingEnabled = false;
     const [ox, oy] = toScreen(0, 0);
     vctx.drawImage(buf, ox, oy, BW * cam.zoom, BH * cam.zoom);
+    // sepia grade and vignette over everything
+    vctx.globalCompositeOperation = "multiply";
+    vctx.fillStyle = "#f2d9b0"; vctx.fillRect(0, 0, W, H);
+    vctx.globalCompositeOperation = "source-over";
+    const vg = vctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+    vg.addColorStop(0, "rgba(30,18,8,0)"); vg.addColorStop(1, "rgba(30,18,8,0.55)");
+    vctx.fillStyle = vg; vctx.fillRect(0, 0, W, H);
 
     // bubbles and labels in screen space
     vctx.textBaseline = "middle";
@@ -850,7 +1080,10 @@
         const rate = c.big ? 1.2 + state.stoke * 4 : b.occ > 0 || (b.id === "tavern" && state.tavernOpen) ? 0.5 : 0.06;
         if (Math.random() < rate * realDt * 4 * Math.max(1, state.speed / 2)) puff(c, 1, c.big ? "#bdb6aa" : "#d8d4cc", c.big ? 1.4 : 1);
       }
-      if (Math.random() < realDt * 0.6) puff({ x: 7.5, y: 6.5, z: 0 }, 1, "#e8e4dc", 0.5); // street grate
+      if (Math.random() < realDt * 1.2) { const g = grates[Math.floor(Math.random() * grates.length)]; puff({ x: g.x, y: g.y, z: 0 }, 3, "#e8e4dc", 0.5); }
+      for (const b of buildings) if (b.valve && Math.random() < realDt * 0.08) puff(b.valve, 4, "#efe8dc", 0.7);
+      for (const p of props) if (p.kind === "valve" && Math.random() < realDt * 0.15) puff({ x: p.x + 0.7, y: p.y + 0.3, z: 16 }, 3, "#efe8dc", 0.6);
+      if (Math.random() < realDt * 0.25) { const q = pipePieces[Math.floor(Math.random() * pipePieces.length)]; puff({ x: q.p0[0], y: q.p0[1], z: PIPE_Z }, 2, "#efe8dc", 0.4); }
     }
     // particles update in real time
     for (let i = particles.length - 1; i >= 0; i--) {
