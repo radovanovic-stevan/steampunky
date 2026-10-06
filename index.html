@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Steampunky</title>
+<meta name="description" content="A small isometric steampunk town that runs on its own clock. Six townsfolk go about their day: baking, stoking the boiler, lighting lamps and blowing up the workshop.">
+<meta property="og:title" content="Steampunky">
+<meta property="og:description" content="A small isometric steampunk town that runs on its own clock.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a1f17'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23d9a441' stroke-width='4' stroke-dasharray='4 3'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23d9a441'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #f3e6c8;
+    --ink-2: #c9b48a;
+    --brass: #d9a441;
+    --brass-dark: #8a6420;
+    --panel: rgba(30, 22, 16, 0.88);
+    --panel-edge: #6b4a22;
+    --sel: rgba(217, 164, 65, 0.18);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #14100c; color: var(--ink); font: 15px/1.4 "IM Fell English", Georgia, serif; }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+  canvas.dragging { cursor: grabbing; }
+  .panel {
+    position: fixed; background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 10px;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(217, 164, 65, 0.15), 0 10px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+  }
+  .rivets::before, .rivets::after { content: ""; position: absolute; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--brass); box-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .rivets::before { left: 7px; } .rivets::after { right: 7px; }
+  #hud { top: 14px; left: 14px; padding: 14px 18px 14px; min-width: 230px; }
+  h1 { font: 30px/1 "IM Fell English SC", Georgia, serif; margin: 0; color: var(--brass); letter-spacing: 0.02em; text-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .tag { color: var(--ink-2); font-style: italic; font-size: 14px; margin-top: 2px; }
+  .clock { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+  .clock .time { font: 28px/1 "IM Fell English SC", Georgia, serif; font-variant-numeric: tabular-nums; }
+  .clock .day { color: var(--ink-2); font-size: 14px; }
+  .speeds { display: flex; gap: 6px; margin-top: 10px; }
+  button {
+    font: inherit; color: var(--ink); background: linear-gradient(#4a3420, #2e2015); border: 1px solid var(--brass-dark);
+    border-radius: 6px; padding: 4px 10px; cursor: pointer; min-width: 40px;
+  }
+  button:hover { border-color: var(--brass); }
+  button.on { background: linear-gradient(#e2b453, #a87a26); color: #241708; border-color: #f1d08a; }
+  #folk { top: 14px; right: 14px; width: 270px; padding: 12px 10px 8px; max-height: calc(100% - 28px); overflow: auto; }
+  #folk h2, #card h2 { font: 20px/1 "IM Fell English SC", Georgia, serif; color: var(--brass); margin: 0 6px 8px; }
+  .person { display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 7px; cursor: pointer; }
+  .person:hover { background: rgba(255,255,255,0.05); }
+  .person.sel { background: var(--sel); }
+  .swatch { width: 14px; height: 22px; border-radius: 3px; flex: none; box-shadow: inset 0 -8px 0 rgba(0,0,0,.25); }
+  .person .nm { font-size: 16px; }
+  .person .act { font-size: 13px; color: var(--ink-2); font-style: italic; }
+  #card { left: 14px; bottom: 14px; width: 320px; padding: 14px 16px; display: none; }
+  #card.show { display: block; }
+  #card .role { color: var(--ink-2); font-style: italic; margin: -4px 0 8px; }
+  #card .now { margin-bottom: 8px; }
+  #card ol { list-style: none; margin: 0; padding: 0; max-height: 210px; overflow: auto; font-size: 14px; }
+  #card li { display: grid; grid-template-columns: 52px 1fr; padding: 2px 4px; border-radius: 4px; color: var(--ink-2); }
+  #card li.cur { background: var(--sel); color: var(--ink); }
+  #card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; }
+  #zoom { right: 14px; bottom: 14px; padding: 6px; display: flex; gap: 6px; }
+  #hint { left: 50%; transform: translateX(-50%); bottom: 14px; padding: 6px 14px; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  #card.show ~ #hint { display: none; }
+  #folkToggle { display: none; position: fixed; top: 14px; right: 14px; z-index: 3; }
+  @media (max-width: 760px) {
+    #hud { padding: 10px 12px; min-width: 0; left: 10px; top: 10px; }
+    h1 { font-size: 24px; }
+    .tag { display: none; }
+    .clock .time { font-size: 22px; }
+    #folk { display: none; top: 56px; right: 10px; width: min(280px, calc(100% - 20px)); max-height: 60%; z-index: 3; }
+    #folk.open { display: block; }
+    #folkToggle { display: block; top: 10px; right: 10px; }
+    #card { left: 10px; right: 10px; bottom: 10px; width: auto; }
+    #hint { display: none; }
+    #zoom { bottom: 10px; right: 10px; }
+    #card.show ~ #zoom { bottom: auto; top: 120px; flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<canvas id="view" aria-label="An isometric steampunk town"></canvas>
+
+<div id="hud" class="panel rivets">
+  <h1>Steampunky</h1>
+  <div class="tag">A small town that runs on steam</div>
+  <div class="clock"><span class="time" id="time">07:40</span><span class="day" id="day">Day 1</span></div>
+  <div class="speeds" id="speeds">
+    <button data-s="0" title="Pause" aria-label="Pause">❚❚</button>
+    <button data-s="1" class="on">1×</button>
+    <button data-s="3">3×</button>
+    <button data-s="10">10×</button>
+  </div>
+</div>
+
+<button id="folkToggle">Townsfolk</button>
+<div id="folk" class="panel">
+  <h2>Townsfolk</h2>
+  <div id="folkList"></div>
+</div>
+
+<div id="card" class="panel">
+  <h2 id="cName"></h2>
+  <div class="role" id="cRole"></div>
+  <div class="now" id="cNow"></div>
+  <ol id="cSched"></ol>
+  <div class="row"><span class="tag" style="margin:0">Following</span><button id="cClose">Stop following</button></div>
+</div>
+
+<div id="hint" class="panel">Drag to look around · scroll to zoom · click someone to follow them</div>
+<div id="zoom" class="panel"><button id="zOut" aria-label="Zoom out">−</button><button id="zIn" aria-label="Zoom in">+</button></div>
+
+<script src="town.js"></script>
+</body>
+</html>
