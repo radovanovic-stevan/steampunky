@@ -91,6 +91,7 @@
   prop("mast", 19, 18);
   prop("crates", 21, 21); prop("crates", 16, 21); prop("barrels", 14, 20); prop("barrels", 21, 16);
   prop("mailbox", 20, 13);
+  prop("coop", 13, 4);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -781,6 +782,35 @@
     } else if (p.kind === "mailbox") {
       ctx.fillStyle = "#2a2a2e"; ctx.fillRect(cx - 1, cy - 8, 2, 8);
       ctx.fillStyle = "#b8302a"; ctx.fillRect(cx - 3, cy - 14, 6, 7); ctx.fillStyle = "#f3e6c8"; ctx.fillRect(cx - 2, cy - 12, 4, 1);
+    } else if (p.kind === "coop") {
+      // Pip's pigeon coop: a copper-roofed loft on an iron post, with birds that circle by day
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 8, 4, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.44, y + 0.44, 0, 0.12, 0.12, 14, "#2e2a26");
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(cx) - 3, Math.round(cy) - 1, 6, 1);
+      box(x + 0.18, y + 0.18, 14, 0.64, 0.64, 1, "#6b4a2a");
+      box(x + 0.22, y + 0.22, 15, 0.56, 0.56, 10, "#9a7448", { noTop: true });
+      for (const a of [0.36, 0.64]) {
+        poly(ctx, [P(x + a - 0.07, y + 0.78, 18), P(x + a + 0.07, y + 0.78, 18), P(x + a + 0.07, y + 0.78, 22), P(x + a - 0.07, y + 0.78, 22)], "#2a1a10");
+        poly(ctx, [P(x + 0.78, y + a - 0.07, 18), P(x + 0.78, y + a + 0.07, 18), P(x + 0.78, y + a + 0.07, 22), P(x + 0.78, y + a - 0.07, 22)], "#2a1a10");
+      }
+      const rz = 25, ap = 33;
+      poly(ctx, [P(x + 0.14, y + 0.86, rz), P(x + 0.86, y + 0.86, rz), P(x + 0.5, y + 0.5, ap)], "#a8602e", OUTLINE);
+      poly(ctx, [P(x + 0.86, y + 0.14, rz), P(x + 0.86, y + 0.86, rz), P(x + 0.5, y + 0.5, ap)], "#7a4220", OUTLINE);
+      const [fx, fy] = P(x + 0.5, y + 0.5, ap);
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(fx), Math.round(fy) - 4, 1, 4); ctx.fillRect(Math.round(fx) - 1, Math.round(fy) - 5, 3, 1);
+      const day = !isNight(m), n = day ? 5 : 2;
+      for (let k = 0; k < n; k++) {
+        let bx, by, flap;
+        if (day && k > 1) {
+          const a = t * (0.9 + k * 0.15) + k * 2.1, r = 10 + k * 3;
+          bx = fx + Math.cos(a) * r; by = fy - 10 - k * 2 + Math.sin(a) * r * 0.4; flap = Math.floor(t * 8 + k) % 2;
+        } else {
+          [bx, by] = P(x + 0.78, y + (k ? 0.3 : 0.62), 15); bx += 1; by -= 1; flap = -1;
+        }
+        ctx.fillStyle = "#8a8c94"; ctx.fillRect(Math.round(bx) - 1, Math.round(by), 3, 2);
+        ctx.fillStyle = "#c8c6c0"; ctx.fillRect(Math.round(bx) + 1, Math.round(by) - 1, 1, 1);
+        if (flap >= 0) { ctx.fillStyle = "#6a6c74"; ctx.fillRect(Math.round(bx) - 2, Math.round(by) - (flap ? 2 : -1), 2, 1); ctx.fillRect(Math.round(bx) + 1, Math.round(by) - (flap ? 2 : -1), 2, 1); }
+      }
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
