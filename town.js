@@ -18,11 +18,14 @@
   const vctx = view.getContext("2d");
   const buf = document.createElement("canvas");
   buf.width = BW; buf.height = BH;
-  const ctx = buf.getContext("2d");
+  const mainCtx = buf.getContext("2d");
+  let ctx = mainCtx;            // points at `layer` while a see-through building is drawn
   const ground = document.createElement("canvas");
   ground.width = BW; ground.height = BH;
   const dark = document.createElement("canvas");
   dark.width = BW; dark.height = BH;
+  const layer = document.createElement("canvas");
+  layer.width = BW; layer.height = BH;
 
   // ---------------------------------------------------------------- helpers
   const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) ^ 0x5bd1e995; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
@@ -219,7 +222,7 @@
   }
 
   // ---------------------------------------------------------------- world state
-  const state = { min: 7 * 60 + 40, speed: 1, stoke: 0, tavernOpen: false, followId: null, hoverId: null, selId: null, lastHour: -1 };
+  const state = { walls: false, mouse: null, min: 7 * 60 + 40, speed: 1, stoke: 0, tavernOpen: false, followId: null, hoverId: null, selId: null, lastHour: -1 };
   const particles = [];
   const floaters = []; // world-anchored text bubbles (BOOM!, bell)
 
@@ -907,6 +910,88 @@
     if (Math.random() < 0.15) particles.push({ x: cx - 8, y: cy + 14, vx: -6, vy: -3, r: 1.5, life: 0, max: 1.6, color: "#cfcac0" });
   }
 
+  // ---------------------------------------------------------------- see-through buildings
+  // A building fades when it hides someone (more so the person being followed) or when the
+  // pointer rests on it. With walls down every building is cut to a low stub instead.
+  const STUB = 7;
+  function outline(b) {
+    if (b.hull) return b.hull;
+    const { x, y, w, d, h } = b, r = b.roof, top = h + (r.h || 0);
+    const pts = [];
+    for (const z of [0, h]) pts.push([x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]);
+    if (r.type === "spire") pts.push([x + w / 2, y + d / 2, top + 3]);
+    else if (r.type === "flat") pts.push([x, y, top], [x + w, y, top], [x + w, y + d, top], [x, y + d, top]);
+    else if (r.dir === "x") pts.push([x, y + d / 2, top], [x + w, y + d / 2, top]);
+    else pts.push([x + w / 2, y, top], [x + w / 2, y + d, top]);
+    for (const c of b.chimneys) pts.push([c.x - 0.3, c.y - 0.3, c.z], [c.x + 0.3, c.y + 0.3, c.z]);
+    // convex hull of the projected points (monotone chain)
+    const q = pts.map(([a, c, z]) => P(a, c, z)).sort((a, c) => a[0] - c[0] || a[1] - c[1]);
+    const cross = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]);
+    const half = (list) => { const out = []; for (const pt of list) { while (out.length > 1 && cross(out[out.length - 2], out[out.length - 1], pt) <= 0) out.pop(); out.push(pt); } out.pop(); return out; };
+    return (b.hull = [...half(q), ...half(q.slice().reverse())]);
+  }
+  function inHull(hull, px, py) {
+    let inside = false;
+    for (let i = 0, j = hull.length - 1; i < hull.length; j = i++) {
+      const [xi, yi] = hull[i], [xj, yj] = hull[j];
+      if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+  // does building b stand between the viewer and tile point (px, py)?
+  const hides = (b, px, py) => px < b.x + b.w && py < b.y + b.d && !(px >= b.x && py >= b.y) && [6, 13].some((z) => inHull(outline(b), ...P(px, py, z)));
+  function updateFades(dt) {
+    let hover = null;
+    if (state.mouse && !state.walls) {
+      // frontmost building under the pointer
+      for (const b of buildings) if (inHull(outline(b), ...state.mouse) && (!hover || b.x + b.w + b.y + b.d > hover.x + hover.w + hover.y + hover.d)) hover = b;
+    }
+    state.hoverBuilding = hover;
+    for (const b of buildings) {
+      let target = 1;
+      if (b === hover) target = 0.35;
+      for (const p of people) {
+        if (p.inside) continue;
+        if (hides(b, p.x, p.y)) target = Math.min(target, p.id === state.followId ? 0.25 : 0.55);
+      }
+      if (b.alpha === undefined) b.alpha = target;
+      b.alpha += (target - b.alpha) * Math.min(1, dt * 8);
+    }
+  }
+  function drawStub(b, m, t) {
+    const { x, y, w, d } = b, n = lights.length;
+    ctx.save();
+    ctx.beginPath();
+    for (const [i, pt] of [P(x - 0.1, y + d + 0.1, 0), P(x + w + 0.1, y + d + 0.1, 0), P(x + w + 0.1, y - 0.1, 0), P(x + w + 0.1, y - 0.1, STUB), P(x - 0.1, y - 0.1, STUB), P(x - 0.1, y + d + 0.1, STUB)].entries()) i ? ctx.lineTo(...pt) : ctx.moveTo(...pt);
+    ctx.clip();
+    drawBuilding(b, m, t);
+    ctx.restore();
+    lights.length = n; // no window glow from walls that are not there
+    // the cut: floorboards inside the walls
+    const i = 0.25;
+    poly(ctx, [P(x, y, STUB), P(x + w, y, STUB), P(x + w, y + d, STUB), P(x, y + d, STUB)], shade(b.wall, 0.55), OUTLINE);
+    poly(ctx, [P(x + i, y + i, STUB), P(x + w - i, y + i, STUB), P(x + w - i, y + d - i, STUB), P(x + i, y + d - i, STUB)], "#6a4e34", "rgba(30,18,10,0.5)");
+    ctx.strokeStyle = "rgba(40,24,12,0.35)";
+    ctx.beginPath();
+    for (let k = 1; k < w * 2; k++) { const [ax, ay] = P(x + k / 2, y + i, STUB), [bx, by] = P(x + k / 2, y + d - i, STUB); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); }
+    ctx.stroke();
+  }
+  function drawBuildingItem(b, m, t) {
+    if (state.walls) return drawStub(b, m, t);
+    if (b.alpha > 0.98) return drawBuilding(b, m, t);
+    // draw into a scratch layer, then blend it in, so the building fades as one piece
+    const hull = outline(b), xs = hull.map((q) => q[0]), ys = hull.map((q) => q[1]);
+    const bx = Math.max(0, Math.floor(Math.min(...xs)) - 8), by = Math.max(0, Math.floor(Math.min(...ys)) - 40);
+    const bw = Math.min(BW, Math.ceil(Math.max(...xs)) + 8) - bx, bh = Math.min(BH, Math.ceil(Math.max(...ys)) + 8) - by;
+    const lc = layer.getContext("2d");
+    lc.clearRect(bx, by, bw, bh);
+    ctx = lc;
+    try { drawBuilding(b, m, t); } finally { ctx = mainCtx; }
+    ctx.globalAlpha = b.alpha;
+    ctx.drawImage(layer, bx, by, bw, bh, bx, by, bw, bh);
+    ctx.globalAlpha = 1;
+  }
+
   // ---------------------------------------------------------------- frame
   function render(t) {
     const m = state.min % 1440;
@@ -918,7 +1003,7 @@
 
     // depth-sorted scene
     const items = [];
-    for (const b of buildings) items.push({ x0: b.x, y0: b.y, x1: b.x + b.w, y1: b.y + b.d, h: b.h + (b.roof.h || 0) + 100, draw: () => drawBuilding(b, m, t) });
+    for (const b of buildings) items.push({ x0: b.x, y0: b.y, x1: b.x + b.w, y1: b.y + b.d, h: b.h + (b.roof.h || 0) + 100, draw: () => drawBuildingItem(b, m, t) });
     for (const p of props) items.push({ x0: p.x + 0.1, y0: p.y + 0.1, x1: p.x + 0.9, y1: p.y + 0.9, h: p.kind === "mast" ? 80 : 40, draw: () => drawProp(p, m, t) });
     for (const p of people) if (!p.inside) items.push({ x0: p.x - 0.15, y0: p.y - 0.15, x1: p.x + 0.15, y1: p.y + 0.15, h: 24, draw: () => drawPerson(p) });
     items.push({ x0: tram.x - 0.8, y0: 14.18, x1: tram.x + 0.8, y1: 14.82, h: 30, draw: () => drawTram(m) });
@@ -1106,12 +1191,12 @@
       for (const b of buildings) b.occ = 0;
       for (const p of people) if (p.inside && byId[p.inside]) byId[p.inside].occ++;
       // chimney smoke
-      for (const b of buildings) for (const c of b.chimneys) {
+      if (!state.walls) for (const b of buildings) for (const c of b.chimneys) {
         const rate = c.big ? 1.2 + state.stoke * 4 : b.occ > 0 || (b.id === "tavern" && state.tavernOpen) ? 0.5 : 0.06;
         if (Math.random() < rate * realDt * 4 * Math.max(1, state.speed / 2)) puff(c, 1, c.big ? "#bdb6aa" : "#d8d4cc", c.big ? 1.4 : 1);
       }
       if (Math.random() < realDt * 1.2) { const g = grates[Math.floor(Math.random() * grates.length)]; puff({ x: g.x, y: g.y, z: 0 }, 3, "#e8e4dc", 0.5); }
-      for (const b of buildings) if (b.valve && Math.random() < realDt * 0.08) puff(b.valve, 4, "#efe8dc", 0.7);
+      for (const b of buildings) if (!state.walls && b.valve && Math.random() < realDt * 0.08) puff(b.valve, 4, "#efe8dc", 0.7);
       for (const p of props) if (p.kind === "valve" && Math.random() < realDt * 0.15) puff({ x: p.x + 0.7, y: p.y + 0.3, z: 16 }, 3, "#efe8dc", 0.6);
       if (Math.random() < realDt * 0.25) { const q = pipePieces[Math.floor(Math.random() * pipePieces.length)]; puff({ x: q.p0[0], y: q.p0[1], z: PIPE_Z }, 2, "#efe8dc", 0.4); }
     }
@@ -1129,6 +1214,7 @@
       const [tx, ty] = p.inside ? P(...placeTile(p.inside).map((v) => v + 0.5)) : P(p.x, p.y, 16);
       cam.x = lerp(cam.x, tx, 0.08); cam.y = lerp(cam.y, ty, 0.08);
     }
+    updateFades(realDt);
     render(now / 1000);
     present(now);
     updateUI(m);
@@ -1158,12 +1244,15 @@
     document.querySelectorAll(".person").forEach((el) => el.classList.toggle("sel", el.dataset.id === id));
   }
   $("cClose").addEventListener("click", () => { state.selId = state.followId = null; $("card").classList.remove("show"); document.querySelectorAll(".person").forEach((el) => el.classList.remove("sel")); });
-  let lastUi = 0;
+  let lastUi = 0, tipAt = null;
   function updateUI(m) {
     const now = performance.now();
     if (now - lastUi < 150) return;
     lastUi = now;
     $("time").textContent = fmt(m);
+    const hb = state.hoverBuilding, tip = $("tip");
+    if (hb && tipAt && !state.hoverId) { tip.textContent = hb.name; tip.style.left = `${tipAt[0] + 14}px`; tip.style.top = `${tipAt[1] + 12}px`; tip.classList.add("show"); }
+    else tip.classList.remove("show");
     $("day").textContent = `Day ${Math.floor(state.min / 1440) + 1}`;
     for (const p of people) $(`act-${p.id}`).textContent = activity(p);
     if (state.selId) {
@@ -1184,6 +1273,11 @@
     cam.x += bx - nx; cam.y += by - ny;
   };
   $("zIn").addEventListener("click", () => zoomBy(1.25));
+  $("walls").addEventListener("click", () => {
+    state.walls = !state.walls;
+    $("walls").classList.toggle("on", state.walls);
+    $("walls").setAttribute("aria-pressed", state.walls);
+  });
   $("zOut").addEventListener("click", () => zoomBy(0.8));
   view.addEventListener("wheel", (e) => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.12 : 0.89, e.clientX, e.clientY); }, { passive: false });
 
@@ -1206,13 +1300,14 @@
     }
     if (drag) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; view.classList.add("dragging"); state.followId = null; }
+      if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; view.classList.add("dragging"); state.followId = null; state.mouse = null; }
       if (drag.moved) { cam.x = drag.cx - dx / cam.zoom; cam.y = drag.cy - dy / cam.zoom; }
       return;
     }
     const hit = pick(e.clientX, e.clientY);
     state.hoverId = hit ? hit.id : null;
     view.style.cursor = hit ? "pointer" : "";
+    if (e.pointerType === "mouse") { state.mouse = toBuf(e.clientX, e.clientY); tipAt = [e.clientX, e.clientY]; }
   });
   const end = (e) => {
     pointers.delete(e.pointerId);
@@ -1221,6 +1316,7 @@
     if (pointers.size === 0) { drag = null; view.classList.remove("dragging"); }
   };
   view.addEventListener("pointerup", end);
+  view.addEventListener("pointerleave", () => { state.mouse = null; });
   view.addEventListener("pointercancel", end);
   function pick(sx, sy) {
     let best = null, bd = 1e9;
@@ -1276,6 +1372,6 @@
     return out;
   }
   // test hook: window.__town.set(minutes) jumps the clock
-  window.__town = { state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, buildings, props, check };
+  window.__town = { outline, hides, state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, buildings, props, check };
   requestAnimationFrame(tick);
 })();

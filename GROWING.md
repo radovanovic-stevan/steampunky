@@ -29,6 +29,8 @@ values are referenced by schedules).
   offset `v`), chimneys and optional extras (`gear`, `sign`, `ports`, `plates`, `pipe`,
   `turbine`, `horn`, `tubes`, `clock`, `stack`, `tesla`). The door must open onto a street,
   the plaza or the dock.
+  Buildings fade and lower their walls on their own; `outline` in `town.js` gives each one a
+  screen outline from its walls, roof and chimneys, so a new roof shape needs a case there.
 - `prop(kind, x, y)`: trees, tanks, cogs, turbines, valves, benches, crates, barrels and so on.
   Every prop blocks its tile. New kinds need a branch in `drawProp`.
 - `lampSpots`: street lamps; Pip lights and snuffs them in this order.

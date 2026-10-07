@@ -19,7 +19,9 @@ There's also a steam tram, an hourly bell, a day/night cycle and smoke from ever
 
 ## Controls
 
-Drag to pan, scroll or pinch to zoom, and click someone to follow them. The clock runs at
+Drag to pan, scroll or pinch to zoom, and click someone to follow them. Buildings turn
+see-through when they hide someone (the person you follow most of all) or when you point at
+them, and the Walls button lowers every building to its floor so the whole town is visible. The clock runs at
 1×, 3× or 10×, or can be paused.
 
 ## Files

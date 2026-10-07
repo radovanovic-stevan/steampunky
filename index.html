@@ -62,6 +62,8 @@
   #card li.cur { background: var(--sel); color: var(--ink); }
   #card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; }
   #zoom { right: 14px; bottom: 14px; padding: 6px; display: flex; gap: 6px; }
+  #tip { position: fixed; display: none; pointer-events: none; z-index: 5; padding: 3px 9px; border-radius: 5px; background: var(--panel); border: 1px solid var(--panel-edge); color: var(--ink); font-size: 13px; white-space: nowrap; }
+  #tip.show { display: block; }
   #hint { left: 50%; transform: translateX(-50%); bottom: 14px; padding: 6px 14px; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
   #card.show ~ #hint { display: none; }
   #folkToggle { display: none; position: fixed; top: 14px; right: 14px; z-index: 3; }
@@ -122,8 +124,9 @@
   <div class="row"><span class="tag" style="margin:0">Following</span><button id="cClose">Stop following</button></div>
 </div>
 
-<div id="hint" class="panel">Drag to look around · scroll to zoom · click someone to follow them</div>
-<div id="zoom" class="panel"><button id="zOut" aria-label="Zoom out">−</button><button id="zIn" aria-label="Zoom in">+</button></div>
+<div id="hint" class="panel">Drag to look around · scroll to zoom · point at a building to see behind it · click someone to follow them</div>
+<div id="tip"></div>
+<div id="zoom" class="panel"><button id="walls" aria-pressed="false" title="Lower the walls to see the whole street plan">Walls</button><button id="zOut" aria-label="Zoom out">−</button><button id="zIn" aria-label="Zoom in">+</button></div>
 
 <script src="town.js"></script>
 <script>
