@@ -26,9 +26,17 @@ Drag to pan, scroll or pinch to zoom, and click someone to follow them. The cloc
 
 - `index.html`: page and UI
 - `town.js`: map, rendering, lighting and the scripted schedules
+- `changelog.json`: the town log, one line per change, shown under the Town log button
+- `GROWING.md`: how the town changes on its own every other day
+- `tools/check.cjs`: headless check and screenshots (`node tools/check.cjs`)
 
 Each person's day is a list of timed entries in `town.js` (`sched`), where each entry is a list of
 steps: walk somewhere, stay a while and say something, do an action, or loop.
+
+## The town grows
+
+A scheduled Claude routine makes one change to the town every other morning, such as a new
+building, a newcomer or a new habit, and records it in `changelog.json`. See `GROWING.md`.
 
 ## Deploy
 

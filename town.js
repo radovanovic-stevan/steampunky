@@ -91,7 +91,7 @@
   prop("mast", 19, 18);
   prop("crates", 21, 21); prop("crates", 16, 21); prop("barrels", 14, 20); prop("barrels", 21, 16);
   prop("mailbox", 20, 13);
-  const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 5]];
+  const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
 
@@ -1211,7 +1211,41 @@
   if (m0 > 1140 || m0 < 330) lamps.forEach((l) => (l.lit = true));
   // a little starting life: smoke in the air already
   for (let i = 0; i < 60; i++) for (const b of buildings) for (const c of b.chimneys) if (c.big || Math.random() < 0.1) { puff(c, 1); }
+  // sanity checks for changes to the town: returns a list of problems (empty when all is well)
+  function check() {
+    const out = [], hub = places.fountain;
+    const reach = (t) => t && (t[0] === hub[0] && t[1] === hub[1] || bfs(hub[0], hub[1], t[0], t[1]));
+    const ids = new Set();
+    for (const b of buildings) {
+      if (ids.has(b.id)) out.push(`duplicate id ${b.id}`);
+      ids.add(b.id);
+      if (b.x < 0 || b.y < 0 || b.x + b.w > N || b.y + b.d > N) out.push(`${b.id} is outside the map`);
+      for (const o of buildings) if (o !== b && b.x < o.x + o.w && o.x < b.x + b.w && b.y < o.y + o.d && o.y < b.y + b.d) out.push(`${b.id} overlaps ${o.id}`);
+      for (const p of props) if (p.x >= b.x && p.x < b.x + b.w && p.y >= b.y && p.y < b.y + b.d) out.push(`${b.id} covers a ${p.kind} at ${p.x},${p.y}`);
+      for (let i = b.x; i < b.x + b.w; i++) for (let j = b.y; j < b.y + b.d; j++) if (isStreet(i, j) || isPlaza(i, j) || isDock(i, j)) out.push(`${b.id} sits on a street at ${i},${j}`);
+      if (!reach(b.doorTile)) out.push(`${b.id} door ${b.doorTile} cannot be reached`);
+    }
+    const tiles = new Set();
+    for (const p of props) { const k = `${p.x},${p.y}`; if (tiles.has(k)) out.push(`two props on ${k}`); tiles.add(k); }
+    for (const l of lamps) if (!l.stand || !reach(l.stand)) out.push(`lamp at ${l.x},${l.y} cannot be reached`);
+    for (const id in places) if (!reach(places[id])) out.push(`place ${id} cannot be reached`);
+    const pids = new Set();
+    for (const p of people) {
+      if (pids.has(p.id)) out.push(`duplicate person ${p.id}`);
+      pids.add(p.id);
+      if (!byId[p.home] && p.home !== "airship") out.push(`${p.id} has an unknown home ${p.home}`);
+      p.sched.forEach((e, i) => {
+        if (i && e.at <= p.sched[i - 1].at) out.push(`${p.id}: entry ${e.label} is out of order`);
+        for (const st of e.steps) if (st.go !== undefined) {
+          const t = Array.isArray(st.go) ? st.go : placeTile(st.go);
+          if (!t) out.push(`${p.id}: unknown place ${st.go}`);
+          else if (!reach(t)) out.push(`${p.id}: ${st.go} cannot be reached`);
+        }
+      });
+    }
+    return out;
+  }
   // test hook: window.__town.set(minutes) jumps the clock
-  window.__town = { state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, buildings };
+  window.__town = { state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, buildings, props, check };
   requestAnimationFrame(tick);
 })();
