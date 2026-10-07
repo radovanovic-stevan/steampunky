@@ -40,6 +40,22 @@ values are referenced by schedules).
   `x = 15`; the plaza is `x 8-14, y 7-13`; the dock is `x >= 16, y >= 15`. Buildings and props
   may not sit on those tiles.
 
+## When the town runs out of room
+
+The town is allowed to grow outwards. If there is no good free spot for what you want to
+build, expanding the town can be that run's change ("The town wall was moved out to make
+room for a new street." is a fine log entry), or it can come together with the first new
+building on the new land.
+
+- Raise `N` by 2 to 6. New land appears on the front edges (the +x and +y sides). Never
+  shift existing coordinates to grow towards the back.
+- The new land is bare ground. Give it streets in `isStreet` (for example another row or
+  column like `y === 23` or `x === 23`) that join the existing ones, so doors there can be
+  reached. Existing street rows and columns already run across the whole map.
+- The plinth, ground, rails, camera and lighting follow `N` on their own. The dock stays
+  the fixed area `x 16-21, y 15-21`.
+- Keep `N` at 40 or below so the canvas stays small.
+
 Match the existing style: the warm brass, copper and soot palette, pixel-art shapes drawn with
 `box`, `poly` and `faceQuad`, and short plain sentences in speech bubbles. Update the
 townsfolk table in `README.md` when someone moves in or gets a new job.

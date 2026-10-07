@@ -52,7 +52,7 @@
   // ---------------------------------------------------------------- map
   const isStreet = (x, y) => y === 6 || y === 14 || x === 7 || x === 15;
   const isPlaza = (x, y) => x >= 8 && x <= 14 && y >= 7 && y <= 13;
-  const isDock = (x, y) => x >= 16 && y >= 15;
+  const isDock = (x, y) => x >= 16 && x <= 21 && y >= 15 && y <= 21;
 
   const B = (o) => Object.assign({ occ: 0, chimneys: [], windows: true, lit: false }, o);
   const buildings = [
