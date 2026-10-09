@@ -145,6 +145,7 @@
       sched: [
         S("07:15", [go("bakery", { stay: 12, say: "One cog-shaped bun, please" }), go("workshop")], "Breakfast, then the workshop"),
         S("11:00", [{ act: "boom" }, { wait: 2 }, go("yard", { stay: 18, say: "*cough* Nearly had it!" }), go("workshop")], "Testing the steam engine"),
+        S("12:00", [go("benchN", { stay: 50, say: "Pressure gauges, over sandwiches" }), go("workshop")], "Lunch with Mabel"),
         S("13:00", [go("fountain", { stay: 45, say: "Sketching ornithopters" }), go("workshop")], "Lunch at the fountain"),
         S("16:20", [{ act: "boom", big: true }, { wait: 2 }, go("yard", { stay: 15, say: "EUREKA! ...wait, no." }), go("workshop")], "Another experiment"),
         S("19:00", [go("tavern")], "Evening at the tavern"),
@@ -188,7 +189,7 @@
       sched: [
         S("06:00", [go("boiler")], "Opening the pressure valves"),
         S("07:00", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
-        S("12:00", [go("benchN", { stay: 50, say: "Lunch break" }), go("boiler")], "Lunch break"),
+        S("12:00", [go("benchN", { stay: 50, say: "Ada talks gauges again" }), go("boiler")], "Lunch break"),
         S("13:15", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("18:00", [go("tavern")], "A pint at the Kettle"),
         S("21:30", [go("cottageNE")], "Home to sleep"),
