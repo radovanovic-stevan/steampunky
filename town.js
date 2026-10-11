@@ -69,6 +69,7 @@
     B({ id: "post", name: "Pneumatic Post Office", x: 16, y: 10, w: 4, d: 4, h: 26, wall: "#4e5a5e", roof: { type: "flat", h: 4, color: "#3a3632" }, door: { face: "y", u: 1.5 }, tubes: true, sign: "letter", ports: true, plates: true }),
     B({ id: "house2", name: "Bunsworth House", x: 4, y: 16, w: 3, d: 3, h: 20, wall: "#9a6440", roof: { type: "gable", dir: "y", h: 12, color: "#3a3632" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 2.2, 16]], pipe: true }),
     B({ id: "house3", name: "Postmistress's House", x: 4, y: 19, w: 3, d: 3, h: 20, wall: "#5e6466", roof: { type: "gable", dir: "y", h: 12, color: "#b06a3b" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]], horn: true, plates: true }),
+    B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true }),
     B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
@@ -202,6 +203,18 @@
         S("01:00", [{ act: "close" }, go("tavern")], "Closing up and sleeping"),
         S("09:30", [go("bakery", { stay: 6, say: "Morning, Barnaby!" }), go("dock", { stay: 10, say: "Checking the cask delivery" }), go("tavern")], "Buying bread and casks"),
         S("16:45", [go("tavern"), { act: "open" }, go("crates", { stay: 5, say: "The Rusty Kettle is open!" }), go("tavern")], "Opening the tavern"),
+      ],
+    },
+    {
+      id: "tilly", name: "Tilly Fenwick", role: "Tea seller", home: "kiosk",
+      look: { coat: "#8a5a7a", trim: "#e8e0d0", skin: "#f0c9a0", hair: "#3a2418", hat: "bonnet" },
+      sched: [
+        S("07:00", [go("kiosk", { stay: 2, say: "Kettle's on" })], "Opening the tea kiosk"),
+        S("10:30", [go("workshop", { stay: 4, say: "Tea for the inventor" }), go("boiler", { stay: 4, say: "Tea for the stokers" }), go("kiosk")], "Tea round"),
+        S("12:10", [go("benchN", { stay: 6, say: "Tea for the gauge talkers" }), go("kiosk")], "Tea to the bench"),
+        S("15:30", [go("market", { stay: 30, say: "Hot tea, two pennies" }), go("kiosk")], "Tea in the square"),
+        S("19:30", [go("tavern", { stay: 40, say: "A pot of tea, Fergus" }), go("kiosk")], "A quiet evening at the Kettle"),
+        S("21:30", [go("kiosk")], "Home to sleep"),
       ],
     },
     {

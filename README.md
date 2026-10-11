@@ -13,6 +13,7 @@ low-resolution canvas and scaled up as pixel art, with no image files and no bui
 | Odette Quill, postmistress | Two rounds of letters from the pneumatic post office |
 | Mabel Steamwright, boiler engineer | Carries coal to the boiler all day |
 | Fergus Barrow, tavern keeper | Opens The Rusty Kettle at 16:45 |
+| Tilly Fenwick, tea seller | Runs the tea kiosk, does a tea round at 10:30 and serves the bench at noon |
 | Captain Rook, airship captain | Arrives by airship at 10:00 and leaves at 16:00 |
 
 There's also a steam tram, an hourly bell, a day/night cycle and smoke from every chimney.
