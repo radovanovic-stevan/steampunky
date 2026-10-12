@@ -232,7 +232,7 @@
     p.inside = p.home;
     const t = placeTile(p.home);
     p.x = t[0] + 0.5; p.y = t[1] + 0.5;
-    p.path = null; p.wait = 0; p.si = 0; p.entry = -1; p.say = ""; p.bubble = null; p.carry = null; p.face = 1; p.step = 0;
+    p.path = null; p.wait = 0; p.si = 0; p.entry = -1; p.say = ""; p.bubble = null; p.carry = null; p.face = 1; p.dir = Math.PI / 2; p.step = 0;
   }
 
   // ---------------------------------------------------------------- world state
@@ -305,7 +305,7 @@
           const [tx, ty] = p.path[0];
           const dx = tx + 0.5 - p.x, dy = ty + 0.5 - p.y, dist = Math.hypot(dx, dy);
           const stepLen = WALK * budget;
-          if (dx || dy) p.face = dx - dy >= 0 ? 1 : -1;
+          if (dx || dy) { p.face = dx - dy >= 0 ? 1 : -1; p.dir = Math.atan2(dy, dx); }
           if (dist <= stepLen) { p.x = tx + 0.5; p.y = ty + 0.5; p.path.shift(); budget -= dist / WALK; }
           else { p.x += (dx / dist) * stepLen; p.y += (dy / dist) * stepLen; budget = 0; }
           p.step += stepLen * 6;
@@ -1116,6 +1116,28 @@
   })();
   const haze = Array.from({ length: 6 }, (_, i) => ({ x: hash(i, 9) * 1.4 - 0.2, y: 0.15 + hash(9, i) * 0.4, r: 120 + hash(i, i) * 160, v: 0.004 + hash(i, 2) * 0.006 }));
 
+  // sepia grade and vignette over everything
+  function grade(edge) {
+    vctx.globalCompositeOperation = "multiply";
+    vctx.fillStyle = "#f2d9b0"; vctx.fillRect(0, 0, W, H);
+    vctx.globalCompositeOperation = "source-over";
+    const vg = vctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
+    vg.addColorStop(0, "rgba(30,18,8,0)"); vg.addColorStop(1, `rgba(30,18,8,${edge})`);
+    vctx.fillStyle = vg; vctx.fillRect(0, 0, W, H);
+  }
+  function drawBubble(sx, sy, text, opts = {}) {
+    vctx.textBaseline = "middle";
+    vctx.font = `${opts.size || 14}px "IM Fell English", Georgia, serif`;
+    const w = vctx.measureText(text).width + 16, h = (opts.size || 14) + 12;
+    const x = Math.round(sx - w / 2), y = Math.round(sy - h - 8);
+    vctx.globalAlpha = opts.alpha ?? 1;
+    vctx.fillStyle = opts.bg || "#f3e6c8"; vctx.strokeStyle = opts.edge || "#6b4a22"; vctx.lineWidth = 1.5;
+    vctx.beginPath(); vctx.roundRect(x, y, w, h, 6); vctx.fill(); vctx.stroke();
+    vctx.beginPath(); vctx.moveTo(sx - 5, y + h); vctx.lineTo(sx, y + h + 7); vctx.lineTo(sx + 5, y + h); vctx.closePath(); vctx.fill();
+    vctx.beginPath(); vctx.moveTo(sx - 5, y + h); vctx.lineTo(sx, y + h + 7); vctx.lineTo(sx + 5, y + h); vctx.stroke();
+    vctx.fillStyle = opts.fg || "#241708"; vctx.fillText(text, x + 8, y + h / 2 + 1);
+    vctx.globalAlpha = 1;
+  }
   function present(now) {
     const m = state.min % 1440;
     const [top, bottom] = sample(SKY, m);
@@ -1145,28 +1167,9 @@
     vctx.imageSmoothingEnabled = false;
     const [ox, oy] = toScreen(0, 0);
     vctx.drawImage(buf, ox, oy, BW * cam.zoom, BH * cam.zoom);
-    // sepia grade and vignette over everything
-    vctx.globalCompositeOperation = "multiply";
-    vctx.fillStyle = "#f2d9b0"; vctx.fillRect(0, 0, W, H);
-    vctx.globalCompositeOperation = "source-over";
-    const vg = vctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-    vg.addColorStop(0, "rgba(30,18,8,0)"); vg.addColorStop(1, "rgba(30,18,8,0.55)");
-    vctx.fillStyle = vg; vctx.fillRect(0, 0, W, H);
+    grade(0.55);
 
     // bubbles and labels in screen space
-    vctx.textBaseline = "middle";
-    const drawBubble = (sx, sy, text, opts = {}) => {
-      vctx.font = `${opts.size || 14}px "IM Fell English", Georgia, serif`;
-      const w = vctx.measureText(text).width + 16, h = (opts.size || 14) + 12;
-      const x = Math.round(sx - w / 2), y = Math.round(sy - h - 8);
-      vctx.globalAlpha = opts.alpha ?? 1;
-      vctx.fillStyle = opts.bg || "#f3e6c8"; vctx.strokeStyle = opts.edge || "#6b4a22"; vctx.lineWidth = 1.5;
-      vctx.beginPath(); vctx.roundRect(x, y, w, h, 6); vctx.fill(); vctx.stroke();
-      vctx.beginPath(); vctx.moveTo(sx - 5, y + h); vctx.lineTo(sx, y + h + 7); vctx.lineTo(sx + 5, y + h); vctx.closePath(); vctx.fill();
-      vctx.beginPath(); vctx.moveTo(sx - 5, y + h); vctx.lineTo(sx, y + h + 7); vctx.lineTo(sx + 5, y + h); vctx.stroke();
-      vctx.fillStyle = opts.fg || "#241708"; vctx.fillText(text, x + 8, y + h / 2 + 1);
-      vctx.globalAlpha = 1;
-    };
     for (const p of people) {
       if (p.inside || !p.screen) continue;
       const [sx, sy] = toScreen(p.screen[0], p.screen[1] - 10);
@@ -1181,6 +1184,552 @@
       const [sx, sy] = toScreen(f.x, f.y - age / 120);
       drawBubble(sx, sy, f.text, { size: f.boom ? 20 : 14, bg: f.boom ? "#ffd27a" : "#f3e6c8", alpha: Math.min(1, (f.dur - age) / 500) });
     }
+  }
+
+  // ---------------------------------------------------------------- first-person view
+  // The town seen through the eyes of whoever is being followed. A small software renderer
+  // projects it in perspective on a low-resolution canvas: walls, roofs and windows as polygons,
+  // the cobbles cast row by row from the cached ground, and props, people and the airship as
+  // upright sprites drawn by the same drawProp, drawPerson and drawAirship as the town view.
+  const ZS = 1 / 12;                                    // tiles of height per pixel of building height
+  const PROP_Z = 1 / 15, FOLK_Z = 1 / 19, AIR_Z = 1 / 7; // tiles per sprite pixel
+  const EYE = 0.8, NEAR = 0.05, FPH = 200;
+  const fp = { on: false, yaw: 0, look: 0, pitch: 0, w: 0, h: FPH, F: 1, hz: 0, cx: 0, cy: 0, cz: EYE, cos: 1, sin: 0, fog: [0, 0, 0] };
+  const fpOut = document.createElement("canvas"), fpo = fpOut.getContext("2d");
+  const fpScene = document.createElement("canvas"), fsc = fpScene.getContext("2d");
+  const fpDark = document.createElement("canvas");
+  const spr = document.createElement("canvas");
+  spr.width = 128; spr.height = 128;
+  const sprCtx = spr.getContext("2d");
+  const fpLights = [];
+  let groundPx = null, floorImg = null;
+  function fpSize() {
+    const w = clamp(Math.round((FPH * W) / H), 120, 560);
+    if (w === fp.w) return;
+    fp.w = w;
+    for (const c of [fpOut, fpScene, fpDark]) { c.width = w; c.height = FPH; }
+    floorImg = fsc.createImageData(w, FPH);
+    fp.F = Math.min(w, FPH * 1.5) / 2 / Math.tan(0.62);
+  }
+
+  const rgbs = new Map();
+  const rgbOf = (c) => {
+    let v = rgbs.get(c);
+    if (!v) { v = c[0] === "#" ? [16, 8, 0].map((s) => (parseInt(c.slice(1), 16) >> s) & 255) : c.match(/\d+/g).slice(0, 3).map(Number); rgbs.set(c, v); }
+    return v;
+  };
+  const fogK = (d) => clamp((d - 5) / 30, 0, 0.75);
+  // a colour shaded by f and faded into the haze with distance d
+  function fcol(c, f, d) {
+    const k = fogK(d), v = rgbOf(c).map((x, i) => Math.round(lerp(clamp(f >= 1 ? x + (255 - x) * (f - 1) : x * f, 0, 255), fp.fog[i], k)));
+    return `rgb(${v[0]},${v[1]},${v[2]})`;
+  }
+  const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+
+  // camera space: [right, up, depth]. The town view is drawn mirror-wise (x runs to the right of
+  // +y on screen), so "right" here is (-sin, cos) to keep the streets the same way round.
+  const toCam = (x, y, z) => { const dx = x - fp.cx, dy = y - fp.cy; return [dy * fp.cos - dx * fp.sin, z - fp.cz, dx * fp.cos + dy * fp.sin]; };
+  const scr = (q) => [fp.w / 2 + (q[0] / q[2]) * fp.F, fp.hz - (q[1] / q[2]) * fp.F];
+  function fpPath(pts) {
+    const q = pts.map((p) => toCam(p[0], p[1], p[2])), out = [];
+    for (let i = 0; i < q.length; i++) {
+      const a = q[i], b = q[(i + 1) % q.length];
+      if (a[2] >= NEAR) out.push(a);
+      if ((a[2] >= NEAR) !== (b[2] >= NEAR)) { const k = (NEAR - a[2]) / (b[2] - a[2]); out.push([lerp(a[0], b[0], k), lerp(a[1], b[1], k), NEAR]); }
+    }
+    if (out.length < 3) return false;
+    fsc.beginPath();
+    out.forEach((p, i) => { const [sx, sy] = scr(p); i ? fsc.lineTo(sx, sy) : fsc.moveTo(sx, sy); });
+    fsc.closePath();
+    return true;
+  }
+  function fpFill(pts, fill, edge) {
+    if (!fpPath(pts)) return;
+    fsc.fillStyle = fill; fsc.fill();
+    if (edge) { fsc.strokeStyle = edge; fsc.lineWidth = 1; fsc.stroke(); }
+  }
+  function fpLine(a, b, c, lw = 1) {
+    const A = toCam(...a), Bq = toCam(...b);
+    if (A[2] < NEAR || Bq[2] < NEAR) return;
+    const [ax, ay] = scr(A), [bx, by] = scr(Bq);
+    fsc.strokeStyle = c; fsc.lineWidth = lw; fsc.beginPath(); fsc.moveTo(ax, ay); fsc.lineTo(bx, by); fsc.stroke(); fsc.lineWidth = 1;
+  }
+  function fpLight(x, y, z, r, c, a) {
+    const q = toCam(x, y, z);
+    if (q[2] < NEAR) return;
+    const [sx, sy] = scr(q);
+    fpLights.push({ x: sx, y: sy, r: Math.min(fp.h, (r * fp.F) / q[2]), c, a });
+  }
+  // the outward normal of a face of a convex piece centred on ctr (inwards for a room seen from inside)
+  function normal(pts, ctr, inside) {
+    const [a, b, e] = pts, u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [e[0] - a[0], e[1] - a[1], e[2] - a[2]];
+    let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    const out = n[0] * (a[0] - ctr[0]) + n[1] * (a[1] - ctr[1]) + n[2] * (a[2] - ctr[2]) > 0;
+    if (out === !!inside) n = n.map((k) => -k);
+    const l = Math.hypot(...n) || 1;
+    return n.map((k) => k / l);
+  }
+  const facing = (pts, ctr, inside) => { const n = normal(pts, ctr, inside), a = pts[0]; return n[0] * (fp.cx - a[0]) + n[1] * (fp.cy - a[1]) + n[2] * (fp.cz - a[2]) > 0; };
+  // a face drawn only when it faces the eye, lit like the town view (+y faces brightest, +x darker)
+  function fpFace(pts, ctr, c, f, d, inside) {
+    const n = normal(pts, ctr, inside), a = pts[0];
+    if (n[0] * (fp.cx - a[0]) + n[1] * (fp.cy - a[1]) + n[2] * (fp.cz - a[2]) <= 0) return false;
+    fpFill(pts, fcol(c, f * (0.78 + 0.22 * n[1] - 0.06 * n[0] + 0.3 * n[2]), d), "rgba(20,12,8,0.4)");
+    return true;
+  }
+  function fpBox(x, y, z, w, d, h, c, dist, noBottom) {
+    const x1 = x + w, y1 = y + d, z1 = z + h, ctr = [x + w / 2, y + d / 2, z + h / 2];
+    fpFace([[x, y1, z], [x1, y1, z], [x1, y1, z1], [x, y1, z1]], ctr, c, 1, dist);
+    fpFace([[x1, y, z], [x1, y1, z], [x1, y1, z1], [x1, y, z1]], ctr, c, 1, dist);
+    fpFace([[x, y, z], [x1, y, z], [x1, y, z1], [x, y, z1]], ctr, c, 1, dist);
+    fpFace([[x, y, z], [x, y1, z], [x, y1, z1], [x, y, z1]], ctr, c, 1, dist);
+    fpFace([[x, y, z1], [x1, y, z1], [x1, y1, z1], [x, y1, z1]], ctr, c, 1, dist);
+    if (!noBottom) fpFace([[x, y, z], [x1, y, z], [x1, y1, z], [x, y1, z]], ctr, c, 1, dist);
+  }
+
+  // the four walls of a footprint; u runs left to right for someone looking at the wall from outside
+  const wallFaces = (x, y, x1, y1) => [
+    { key: "y", o: [x, y1], u: [1, 0], len: x1 - x },
+    { key: "x", o: [x1, y1], u: [0, -1], len: y1 - y },
+    { key: "-y", o: [x1, y], u: [-1, 0], len: x1 - x },
+    { key: "-x", o: [x, y], u: [0, 1], len: y1 - y },
+  ];
+  const onFace = (F, a, z) => [F.o[0] + F.u[0] * a, F.o[1] + F.u[1] * a, z];
+  const alongFace = (F, v) => (F.key === "x" ? F.len - v : v); // door and gear offsets run along +x or +y
+  // flat shapes on a wall: a rectangle, a disc and a gear, sizes in pixels like the town view
+  const fq = (F, a, z, wd, ht, c, d) => fpFill([onFace(F, a - wd / 2, z * ZS), onFace(F, a + wd / 2, z * ZS), onFace(F, a + wd / 2, (z + ht) * ZS), onFace(F, a - wd / 2, (z + ht) * ZS)], c[0] === "#" ? fcol(c, 1, d) : c);
+  const fdisc = (F, a, z, r, c, d, sides = 12) => fpFill(Array.from({ length: sides }, (_, i) => { const k = (i / sides) * Math.PI * 2; return onFace(F, a + Math.cos(k) * r * ZS, (z + Math.sin(k) * r) * ZS); }), fcol(c, 1, d));
+  function fgear(F, a, z, r, teeth, ang, c, d) {
+    const pts = [];
+    for (let i = 0; i < teeth * 2; i++) for (const j of [i, i + 1]) {
+      const k = ang + (j / (teeth * 2)) * Math.PI * 2, rr = i % 2 ? r * 0.78 : r;
+      pts.push(onFace(F, a + Math.cos(k) * rr * ZS, (z - Math.sin(k) * rr) * ZS));
+    }
+    fpFill(pts, fcol(c, 1, d), "rgba(20,12,8,0.4)");
+    fdisc(F, a, z, r * 0.32, "#5a4a22", d, 8);
+  }
+
+  // roof height above a point, used to seat chimneys on the roof
+  function roofAt(b, px, py) {
+    const r = b.roof, h = b.h * ZS, rh = (r.h || 0) * ZS;
+    if (r.type !== "gable") return h;
+    const t = r.dir === "x" ? 1 - Math.abs(py - (b.y + b.d / 2)) / (b.d / 2) : 1 - Math.abs(px - (b.x + b.w / 2)) / (b.w / 2);
+    return h + rh * clamp(t, 0, 1);
+  }
+
+  function fpBuilding(b, m, t, dist) {
+    const { x, y, w, d } = b, h = b.h * ZS, r = b.roof, rh = (r.h || 0) * ZS, x1 = x + w, y1 = y + d;
+    const night = isNight(m), wc = windowColor(b, night, m), lit = wc === "#ffd27a" || wc === "#ffcf6a";
+    const ctr = [x + w / 2, y + d / 2, h / 2], o = 0.1;
+    const ridgeX = r.type === "gable" && r.dir === "x", ridgeY = r.type === "gable" && r.dir !== "x";
+    // roof slopes, worked out first so chimneys can go behind or in front of them
+    let slopes = [];
+    if (ridgeX) { const ym = y + d / 2; slopes = [[[x - o, y1 + o, h], [x1 + o, y1 + o, h], [x1 + o, ym, h + rh], [x - o, ym, h + rh]], [[x - o, y - o, h], [x1 + o, y - o, h], [x1 + o, ym, h + rh], [x - o, ym, h + rh]]]; }
+    if (ridgeY) { const xm = x + w / 2; slopes = [[[x1 + o, y - o, h], [x1 + o, y1 + o, h], [xm, y1 + o, h + rh], [xm, y - o, h + rh]], [[x - o, y - o, h], [x - o, y1 + o, h], [xm, y1 + o, h + rh], [xm, y - o, h + rh]]]; }
+    const rc = [x + w / 2, y + d / 2, h + rh / 3], seen = slopes.map((s) => facing(s, rc));
+    const chims = b.chimneys.map((c) => {
+      const side = ridgeX ? (c.y > y + d / 2 ? 0 : 1) : ridgeY ? (c.x > x + w / 2 ? 0 : 1) : -1;
+      return { c, front: side >= 0 && seen[side] };
+    });
+    const chimney = ({ c }) => {
+      if (c.big) {
+        const s = b.stack, z0 = roofAt(b, x + s.u + 0.4, y + s.v + 0.4) - 0.1;
+        fpBox(x + s.u, y + s.v, z0, 0.8, 0.8, s.h * ZS - z0, "#5a3424", dist);
+        for (const z of [b.h + 20, b.h + 40, s.h - 4]) fpBox(x + s.u - 0.05, y + s.v - 0.05, z * ZS, 0.9, 0.9, 3 * ZS, "#c9a54a", dist);
+      } else {
+        const z0 = roofAt(b, c.x, c.y) - 0.1;
+        fpBox(c.x - 0.2, c.y - 0.2, z0, 0.4, 0.4, c.z * ZS - z0, shade(b.wall, 0.8), dist);
+        fpBox(c.x - 0.25, c.y - 0.25, c.z * ZS - 2 * ZS, 0.5, 0.5, 2 * ZS, "#3a3a3f", dist);
+      }
+    };
+    chims.filter((c) => !c.front).forEach(chimney);
+    fpBox(x - 0.05, y - 0.05, 0, w + 0.1, d + 0.1, 3 * ZS, "#5a5248", dist);
+    const rows = b.windows === "tower" ? [14, 30, 46] : b.h > 26 ? [9, 20] : [9];
+    for (const F of wallFaces(x, y, x1, y1)) {
+      const gable = (ridgeY && (F.key === "y" || F.key === "-y")) || (ridgeX && (F.key === "x" || F.key === "-x"));
+      const pts = [onFace(F, 0, 3 * ZS), onFace(F, F.len, 3 * ZS), onFace(F, F.len, h)];
+      if (gable) pts.push(onFace(F, F.len / 2, h + rh));
+      pts.push(onFace(F, 0, h));
+      if (!fpFace(pts, ctr, b.wall, 1, dist)) continue;
+      for (const z of [3, b.h - 3]) fq(F, F.len / 2, z, F.len, 2, "#b8893a", dist);
+      const doorHere = F.key === b.door.face, doorA = alongFace(F, b.door.face === "y" ? b.door.u : b.door.v);
+      const gearHere = b.gear && F.key === b.gear.face, gearA = gearHere && alongFace(F, b.gear.face === "y" ? b.gear.u : b.gear.v);
+      for (let a = 0.5; a < F.len; a += 1) for (const z of rows) {
+        if (doorHere && Math.abs(a - doorA) < 0.6 && z < 16) continue;
+        if (gearHere && Math.abs(a - gearA) < 0.9 && Math.abs(z + 3 - b.gear.z) < b.gear.r + 4) continue;
+        if (b.ports && z === rows[rows.length - 1]) { fdisc(F, a, z + 3.5, 3.6, "#b8893a", dist, 10); fdisc(F, a, z + 3.5, 2.4, wc, dist, 10); }
+        else { fq(F, a, z - 1, 0.48, 1, "#8a6a2a", dist); fq(F, a, z, 0.38, 7, wc, dist); fq(F, a, z + 7, 0.44, 1, "#8a6a2a", dist); }
+        if (lit) fpLight(...onFace(F, a, (z + 4) * ZS), 1.2, "255,200,110", 0.6);
+      }
+      if (b.pipe && F.key === "x") fq(F, 0.3, 3, 0.1, b.h - 3, "#a8602e", dist);
+      if (doorHere) {
+        fq(F, doorA, 3, 0.5, 12, "#3b2618", dist); fq(F, doorA, 13, 0.56, 2, "#c9a54a", dist);
+        if (b.sign) { fq(F, doorA + 0.65, 15, 0.42, 6, "#3b2618", dist); fq(F, doorA + 0.65, 16, 0.28, 4, b.sign === "letter" ? "#f3e6c8" : "#c9a54a", dist); }
+        if (b.id === "tavern" && state.tavernOpen) { fq(F, doorA + 0.7, 13, 0.14, 4, "#ffcf6a", dist); fpLight(...onFace(F, doorA + 0.7, 15 * ZS), 1.6, "255,190,90", 0.9); }
+      }
+      if (gearHere) {
+        const g = b.gear, spin = b.id === "boiler" ? g.speed * (1 + state.stoke * 3) : g.speed * (b.occ > 0 ? 1 : 0.15);
+        fgear(F, gearA, g.z, g.r, g.teeth, t * spin, "#c9a54a", dist);
+        fgear(F, gearA + g.r * 1.15 * ZS, g.z - g.r * 0.6, g.r * 0.55, Math.round(g.teeth * 0.6), -t * spin * 1.8, "#b06a3b", dist);
+      }
+      if (b.clock) {
+        const cz = b.h - 18, a = F.len / 2;
+        fdisc(F, a, cz, 8, "#c9a54a", dist, 18); fdisc(F, a, cz, 6.5, night ? "#ffe6a0" : "#f3e6c8", dist, 18);
+        const hr = (((m / 60) % 12) / 12) * Math.PI * 2, mn = ((m % 60) / 60) * Math.PI * 2, c0 = onFace(F, a, cz * ZS);
+        fpLine(c0, onFace(F, a + Math.sin(hr) * 3.5 * ZS, (cz + Math.cos(hr) * 3.5) * ZS), "#241708", 1.5);
+        fpLine(c0, onFace(F, a + Math.sin(mn) * 5.5 * ZS, (cz + Math.cos(mn) * 5.5) * ZS), "#241708", 1);
+        if (night) fpLight(...c0, 1.4, "255,220,140", 0.7);
+      }
+    }
+    // roof
+    slopes.forEach((s, i) => seen[i] && fpFill(s, fcol(r.color, i ? 0.85 : 1, dist), "rgba(20,12,8,0.4)"));
+    if (r.type === "spire") {
+      fpBox(x - 0.1, y - 0.1, h, w + 0.2, d + 0.2, 3 * ZS, "#6b604f", dist, true);
+      const z0 = h + 3 * ZS, ap = [x + w / 2, y + d / 2, z0 + rh], c0 = [x + w / 2, y + d / 2, z0 + rh / 4], cs = [[x, y], [x1, y], [x1, y1], [x, y1]];
+      for (let i = 0; i < 4; i++) fpFace([[...cs[i], z0], [...cs[(i + 1) % 4], z0], ap], c0, r.color, 1, dist);
+      fpLine(ap, [ap[0], ap[1], ap[2] + 7 * ZS], fcol("#c9a54a", 1, dist), 1);
+    } else if (r.type === "flat") fpBox(x - 0.05, y - 0.05, h, w + 0.1, d + 0.1, 3 * ZS, r.color, dist, true);
+    chims.filter((c) => c.front).forEach(chimney);
+  }
+
+  // what stands inside each building, in tiles from its back corner: [u, v, w, d, height px, colour, glow]
+  const HOME = [[0.15, 0.15, 0.7, 1.2, 5, "#7a2f3a"], [1.15, 1.65, 0.6, 0.6, 7, "#6b4a2a"], [1.25, 0.15, 0.55, 0.5, 10, "#3a3a3f", "255,150,60"]];
+  const FURNITURE = {
+    workshop: [[0.3, 0.3, 2.2, 0.7, 9, "#6b4a2a"], [4.0, 0.4, 0.6, 0.6, 28, "#b06a3b", "170,220,255"], [0.3, 3.0, 0.7, 0.7, 8, "#9a7448"], [2.9, 2.9, 1.0, 0.8, 16, "#a8602e"]],
+    clock: [[1.2, 0.2, 0.6, 0.3, 40, "#c9a54a"], [0.2, 2.2, 0.6, 0.6, 6, "#6b4a2a"]],
+    boiler: [[0.3, 0.3, 1.6, 1.8, 26, "#a8602e", "255,140,50"], [2.9, 3.6, 0.9, 1.1, 5, "#1e1e22"], [3.3, 0.3, 0.4, 0.4, 32, "#8a6a2a"]],
+    bakery: [[0.3, 0.3, 1.4, 1.0, 14, "#8f4b35", "255,150,60"], [2.2, 2.2, 1.5, 0.5, 8, "#a8784e"], [0.3, 2.2, 0.6, 0.6, 6, "#e8e0d0"]],
+    post: [[0.3, 0.2, 3.4, 0.4, 22, "#4a3324"], [0.4, 2.6, 2.6, 0.6, 8, "#6b4a2a"], [3.2, 3.2, 0.6, 0.5, 6, "#a89070"]],
+    kiosk: [[0.2, 0.2, 1.6, 0.5, 8, "#6b4a2a"], [0.2, 1.3, 0.5, 0.5, 9, "#3a3a3f", "255,150,60"]],
+    tavern: [[0.3, 0.3, 3.4, 0.7, 9, "#5a3e28"], [4.1, 0.3, 0.6, 0.6, 8, "#6b4a2a"], [4.1, 1.1, 0.6, 0.6, 8, "#6b4a2a"], [0.9, 2.6, 0.8, 0.8, 7, "#6b4a2a"], [2.9, 2.8, 0.8, 0.8, 7, "#6b4a2a"], [4.2, 3.1, 0.6, 0.6, 12, "#5a5248", "255,150,60"]],
+  };
+  // where people stand indoors, spread around the middle of the room
+  const SPOTS = [[0, 0], [0.7, 0.45], [-0.65, 0.5], [0.6, -0.6], [-0.6, -0.55], [0, 0.8], [0, -0.8]];
+  function spotIn(b, p) {
+    const k = Math.max(0, people.filter((q) => q.inside === b.id).indexOf(p)) % SPOTS.length, [ox, oy] = SPOTS[k];
+    return [clamp(b.x + b.w / 2 + ox, b.x + 0.35, b.x + b.w - 0.35), clamp(b.y + b.d / 2 + oy, b.y + 0.35, b.y + b.d - 0.35)];
+  }
+  const roomLit = (b, m) => b.id === "workshop" || b.id === "tavern" ? isNight(m) && (b.id === "workshop" || state.tavernOpen) : isNight(m) && !asleep(m);
+
+  // a sprite drawn by the town view's own code, stood upright at a point in the world
+  // things closer than `near` tiles fade out rather than fill the view with a few huge pixels
+  function fpSprite(wx, wy, wz, scale, sw, sh, ax, ay, bufX, bufY, draw, near = 0.3) {
+    const q = toCam(wx, wy, wz);
+    if (q[2] < near) return null;
+    const [X, Y] = scr(q), s = (fp.F * scale) / q[2];
+    if (X + sw * s < 0 || X - sw * s > fp.w) return null;
+    sprCtx.setTransform(1, 0, 0, 1, 0, 0);
+    sprCtx.clearRect(0, 0, sw, sh);
+    sprCtx.setTransform(1, 0, 0, 1, ax - Math.round(bufX), ay - Math.round(bufY));
+    const n = lights.length;
+    ctx = sprCtx;
+    try { draw(); } finally { ctx = mainCtx; }
+    for (let i = n; i < lights.length; i++) { const L = lights[i]; fpLights.push({ x: X + (L.x - bufX) * s, y: Y + (L.y - bufY) * s, r: Math.min(fp.h, L.r * s), c: L.c, a: L.a }); }
+    lights.length = n;
+    const k = fogK(q[2]);
+    if (k > 0.01) {
+      sprCtx.setTransform(1, 0, 0, 1, 0, 0);
+      sprCtx.globalCompositeOperation = "source-atop";
+      sprCtx.fillStyle = `rgba(${fp.fog.join(",")},${k})`; sprCtx.fillRect(0, 0, sw, sh);
+      sprCtx.globalCompositeOperation = "source-over";
+    }
+    fsc.imageSmoothingEnabled = false;
+    fsc.globalAlpha = clamp((q[2] - near) / (0.4 + near * 0.6), 0, 1);
+    fsc.drawImage(spr, 0, 0, sw, sh, X - ax * s, Y - ay * s, sw * s, sh * s);
+    fsc.globalAlpha = 1;
+    return [X, Y, s, q[2]];
+  }
+  function fpFolk(q, wx, wy) {
+    const face = q.face, scr0 = q.screen, ox = q.x, oy = q.y;
+    q.x = wx; q.y = wy;
+    q.face = Math.sin(q.dir - fp.yaw) >= 0 ? 1 : -1;
+    const [bx, by] = P(wx, wy);
+    const hit = fpSprite(wx, wy, 0, FOLK_Z, 40, 34, 20, 30, bx, by, () => drawPerson(q));
+    q.face = face; q.screen = scr0; q.x = ox; q.y = oy;
+    if (hit) q.fpHit = [hit[0], hit[1] - 14 * hit[2], hit[2], hit[3]];
+  }
+
+  // draw far things first; a separating street between two things settles which is in front
+  function fpDraw(items) {
+    for (const it of items) it.d = Math.hypot(Math.max(it.x0 - fp.cx, 0, fp.cx - it.x1), Math.max(it.y0 - fp.cy, 0, fp.cy - it.y1));
+    const n = items.length, deps = items.map(() => []);
+    const first = (a, b) => {
+      if (a.x1 <= b.x0) { if (fp.cx >= b.x0) return 1; if (fp.cx <= a.x1) return -1; }
+      if (b.x1 <= a.x0) { if (fp.cx >= a.x0) return -1; if (fp.cx <= b.x1) return 1; }
+      if (a.y1 <= b.y0) { if (fp.cy >= b.y0) return 1; if (fp.cy <= a.y1) return -1; }
+      if (b.y1 <= a.y0) { if (fp.cy >= a.y0) return -1; if (fp.cy <= b.y1) return 1; }
+      return 0;
+    };
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const o = first(items[i], items[j]);
+      if (o > 0) deps[j].push(i); else if (o < 0) deps[i].push(j);
+    }
+    const seen = new Uint8Array(n);
+    const visit = (i) => { if (seen[i]) return; seen[i] = 1; for (const k of deps[i]) visit(k); items[i].draw(); };
+    items.map((it, i) => [it.d, i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => visit(i));
+  }
+  const pointItem = (x, y, r, draw) => ({ x0: x - r, y0: y - r, x1: x + r, y1: y + r, draw });
+
+  function fpGround() {
+    const w = fp.w, data = floorImg.data, gd = groundPx.data, [fr, fg, fb] = fp.fog;
+    data.fill(0);
+    for (let sy = Math.max(0, Math.floor(fp.hz) + 1); sy < fp.h; sy++) {
+      const dz = sy + 0.5 - fp.hz;
+      if (dz <= 0) continue;
+      const dist = (fp.cz * fp.F) / dz, k = fogK(dist), step = dist / fp.F;
+      const bx = fp.cx + fp.cos * dist, by = fp.cy + fp.sin * dist;
+      for (let sx = 0; sx < w; sx++) {
+        const s = (sx + 0.5 - w / 2) * step, wx = bx - fp.sin * s, wy = by + fp.cos * s;
+        let r, g, b;
+        if (wx >= 0 && wy >= 0 && wx < N && wy < N) {
+          const i = (((OY + (wx + wy) * TH) | 0) * BW + ((OX + (wx - wy) * TW) | 0)) * 4;
+          r = gd[i]; g = gd[i + 1]; b = gd[i + 2];
+        } else {
+          // cinder waste beyond the town
+          const v = hash(Math.floor(wx * 2), Math.floor(wy * 2)) * 14;
+          r = 50 + v; g = 37 + v * 0.7; b = 26 + v * 0.5;
+        }
+        const o = (sy * w + sx) * 4;
+        data[o] = r + (fr - r) * k; data[o + 1] = g + (fg - g) * k; data[o + 2] = b + (fb - b) * k; data[o + 3] = 255;
+      }
+    }
+    fsc.putImageData(floorImg, 0, 0);
+  }
+
+  function fpSky(m, now, below) {
+    const [top, bottom] = sample(SKY, m);
+    const g = fpo.createLinearGradient(0, fp.hz - fp.h, 0, fp.hz);
+    g.addColorStop(0, top); g.addColorStop(1, bottom);
+    fpo.fillStyle = g; fpo.fillRect(0, 0, fp.w, fp.h);
+    const turn = Math.PI * 2 * fp.F, yaw = ((fp.yaw % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    if (isNight(m)) {
+      fpo.fillStyle = "rgba(255,235,200,0.6)";
+      for (let i = 0; i < 90; i++) {
+        const sx = ((hash(i, 3) * turn - yaw * fp.F) % turn + turn) % turn, sy = fp.hz - 8 - hash(3, i) * fp.h;
+        if (sx < fp.w && sy > 0 && Math.sin(now / 700 + i) > -0.6) fpo.fillRect(Math.round(sx), Math.round(sy), 1, 1);
+      }
+    }
+    if (below) return;
+    // the far skyline wraps once around the horizon so it turns with the head
+    const sh = fp.h * 0.32, reps = Math.max(1, Math.round(turn / (skyline.width * (sh / skyline.height)))), pw = turn / reps;
+    const off = ((-yaw * fp.F) % pw + pw) % pw - pw;
+    fpo.globalAlpha = 1 - (sample(LIGHT, m)[0] / 0.68) * 0.55;
+    for (let x = off; x < fp.w; x += pw) fpo.drawImage(skyline, x, fp.hz + 3 - sh * (205 / skyline.height), pw, sh);
+    fpo.globalAlpha = 1;
+  }
+
+  // the town around the person, with the airship as one more thing in the sky
+  function fpTown(self, m, t, aboard) {
+    const items = [];
+    for (const b of buildings) {
+      const ahead = [[b.x, b.y], [b.x + b.w, b.y], [b.x, b.y + b.d], [b.x + b.w, b.y + b.d]].some(([x, y]) => (x - fp.cx) * fp.cos + (y - fp.cy) * fp.sin > -0.5);
+      if (ahead) items.push({ x0: b.x, y0: b.y, x1: b.x + b.w, y1: b.y + b.d, draw() { fpBuilding(b, m, t, this.d); } });
+    }
+    for (const q of props) {
+      const [bx, by] = P(q.x + 0.5, q.y + 0.5);
+      items.push(pointItem(q.x + 0.5, q.y + 0.5, 0.4, () => fpSprite(q.x + 0.5, q.y + 0.5, 0, PROP_Z, 96, 112, 48, 100, bx, by, () => drawProp(q, m, t), 1.2)));
+    }
+    for (const q of people) if (!q.inside && q !== self) items.push(pointItem(q.x, q.y, 0.15, () => fpFolk(q, q.x, q.y)));
+    // tram
+    const tx = tram.x - 0.8, ty = 14.18;
+    items.push({ x0: tx, y0: ty, x1: tx + 1.6, y1: ty + 0.64, draw() {
+      const dd = this.d, night = isNight(m);
+      fpBox(tx, ty, 2 * ZS, 1.6, 0.64, 13 * ZS, "#2f5a4a", dd);
+      fpBox(tx - 0.05, ty - 0.05, 15 * ZS, 1.7, 0.74, 2 * ZS, "#c9a54a", dd);
+      fpBox(tram.dir > 0 ? tx + 1.3 : tx + 0.1, ty + 0.2, 17 * ZS, 0.22, 0.22, 7 * ZS, "#3a3a3f", dd);
+      for (const side of [ty + 0.64, ty]) if ((fp.cy - side) * (side - ty - 0.32) > 0) for (let a = 0.25; a < 1.6; a += 0.38) {
+        fpFill([[tx + a, side, 7 * ZS], [tx + a + 0.22, side, 7 * ZS], [tx + a + 0.22, side, 12 * ZS], [tx + a, side, 12 * ZS]], night ? "#ffd27a" : fcol("#9ab8c4", 1, dd), "rgba(20,12,8,0.4)");
+        if (night) fpLight(tx + a + 0.1, side, 10 * ZS, 0.8, "255,200,110", 0.5);
+      }
+      if (night) fpLight(tram.dir > 0 ? tx + 1.6 : tx, ty + 0.32, 6 * ZS, 2, "255,230,170", 0.9);
+    } });
+    // overhead pipes on their stilts
+    const pz = PIPE_Z * ZS;
+    for (const q of pipePieces) items.push({ x0: q.x0, y0: q.y0, x1: q.x1, y1: q.y1, draw() {
+      fpBox(q.x0, q.y0, pz - 0.05, q.x1 - q.x0, q.y1 - q.y0, 0.1, "#a8602e", this.d);
+      const mx = (q.p0[0] + q.p1[0]) / 2, my = (q.p0[1] + q.p1[1]) / 2;
+      if (q.support) fpBox(mx - 0.03, my - 0.03, 0, 0.06, 0.06, pz, "#2e2a26", this.d);
+      if (q.drop) fpBox(q.p1[0] - 0.05, q.p1[1] - 0.05, 0, 0.1, 0.1, pz, "#a8602e", this.d);
+    } });
+    // chimney smoke drifting downwind
+    for (const b of buildings) for (const c of b.chimneys) {
+      const busy = c.big || b.occ > 0 || (b.id === "tavern" && state.tavernOpen), seed = hash(Math.round(c.x * 10), Math.round(c.y * 10));
+      for (let k = 0; k < 5; k++) {
+        const ph = (t * (c.big ? 0.2 + state.stoke * 0.2 : 0.14) + k / 5 + seed) % 1, sx = c.x + ph * 1.8, sy = c.y - ph * 0.5, sz = c.z * ZS + ph * 3.2;
+        items.push(pointItem(sx, sy, 0.05, () => {
+          const q = toCam(sx, sy, sz);
+          if (q[2] < 0.3) return;
+          const [X, Y] = scr(q), rr = ((0.18 + ph * 0.5) * (c.big ? 1.6 : 1) * fp.F) / q[2], v = rgbOf(c.big ? "#bdb6aa" : "#d8d4cc").map((x, i) => Math.round(lerp(x, fp.fog[i], fogK(q[2]))));
+          fsc.fillStyle = `rgba(${v.join(",")},${(1 - ph) * (busy ? 0.5 : 0.12)})`;
+          fsc.beginPath(); fsc.arc(X, Y, rr, 0, Math.PI * 2); fsc.fill();
+        }));
+      }
+    }
+    const ship = airship(m);
+    if (ship.vis && !aboard) {
+      const [bx, by] = P(...ship.pos);
+      items.push(pointItem(ship.pos[0], ship.pos[1], 1, () => fpSprite(ship.pos[0], ship.pos[1], ship.pos[2] * PROP_Z, AIR_Z, 100, 60, 70, 40, bx, by, () => drawAirship(ship, t))));
+    }
+    fpDraw(items);
+  }
+
+  // indoors: the room, its furniture and whoever else is in there
+  function fpRoom(b, self, m, t) {
+    const night = isNight(m), lit = roomLit(b, m), i = 0.08, rh = Math.min(b.h - 3, 26) * ZS;
+    const x0 = b.x + i, y0 = b.y + i, x1 = b.x + b.w - i, y1 = b.y + b.d - i, ctr = [(x0 + x1) / 2, (y0 + y1) / 2, rh / 2];
+    const wall = mix(b.wall, "#e8d8b8", 0.2);
+    fpFace([[x0, y0, 0], [x1, y0, 0], [x1, y1, 0], [x0, y1, 0]], ctr, "#6a4e34", 0.9, 0, true);
+    for (let k = 0.5; k < b.w; k += 0.5) fpLine([b.x + k, y0, 0], [b.x + k, y1, 0], "rgba(40,24,12,0.45)");
+    fpFace([[x0, y0, rh], [x1, y0, rh], [x1, y1, rh], [x0, y1, rh]], ctr, shade(b.wall, 0.6), 1.6, 0, true);
+    for (let k = 1; k < b.d; k += 1) fpLine([x0, b.y + k, rh], [x1, b.y + k, rh], "rgba(30,18,10,0.7)", 2);
+    const outside = night ? "#1c2230" : sample(SKY, m)[1], wz = Math.min(9, rh / ZS - 9);
+    for (const F of wallFaces(x0, y0, x1, y1)) {
+      if (!fpFace([onFace(F, 0, 0), onFace(F, F.len, 0), onFace(F, F.len, rh), onFace(F, 0, rh)], ctr, wall, 1, 0, true)) continue;
+      fq(F, F.len / 2, 0, F.len, 1.5, "#4a3324", 0);
+      const doorHere = F.key === b.door.face, doorA = alongFace(F, b.door.face === "y" ? b.door.u : b.door.v);
+      for (let a = 0.5; a < F.len; a += 1) {
+        if (doorHere && Math.abs(a - doorA) < 0.6) continue;
+        fq(F, a, wz, 0.42, 7, outside, 0); fq(F, a, wz + 3, 0.42, 0.6, "#4a3324", 0);
+      }
+      if (doorHere) { fq(F, doorA, 0, 0.5, 13, "#3b2618", 0); fq(F, doorA + 0.15, 6, 0.06, 1, "#c9a54a", 0); }
+      if (b.clock && F.key === "-y") fgear(F, F.len / 2, 16, 9, 12, t * 0.3, "#c9a54a", 0);
+    }
+    const items = [];
+    for (const [u, v, w, d, h, c, glow] of FURNITURE[b.id] || HOME) {
+      const fx = b.x + u, fy = b.y + v, fz = Math.min(h * ZS, rh - 0.05);
+      items.push({ x0: fx, y0: fy, x1: fx + w, y1: fy + d, draw: () => fpBox(fx, fy, 0, w, d, fz, c, 0) });
+      if (glow && (lit || b.occ > 0)) fpLight(fx + w / 2, fy + d / 2, fz, 1.6, glow, 0.9);
+    }
+    if (lit) {
+      const [lx, ly] = [b.x + b.w / 2, b.y + b.d / 2];
+      items.push(pointItem(lx, ly, 0.08, () => { fpLine([lx, ly, rh], [lx, ly, rh - 0.25], "#2a2a2e"); fpBox(lx - 0.07, ly - 0.07, rh - 0.42, 0.14, 0.14, 0.17, "#ffd27a", 0); }));
+      fpLight(lx, ly, rh - 0.35, 3.5, "255,200,110", 1);
+    }
+    for (const q of people) if (q !== self && q.inside === b.id) { const [sx, sy] = spotIn(b, q); items.push(pointItem(sx, sy, 0.15, () => fpFolk(q, sx, sy))); }
+    fpDraw(items);
+    return night ? (lit ? [0.28, "#2e160c"] : [0.62, "#140c08"]) : [0.06, "#3a2014"];
+  }
+
+  // above the clouds, out of sight of the town
+  function fpClouds(t) {
+    for (let k = 0; k < 40; k++) {
+      const depth = 1 + hash(k, 7) * 6, sx = ((hash(7, k) * fp.w * 3 - fp.yaw * fp.F / depth + t * 6 / depth) % (fp.w * 1.6) + fp.w * 1.6) % (fp.w * 1.6) - fp.w * 0.3;
+      const sy = fp.hz + 6 + (1 - 1 / depth) * fp.h * 0.5, r = 40 / depth + 6;
+      fpo.fillStyle = `rgba(232,220,200,${0.5 + 0.4 / depth})`;
+      fpo.beginPath(); fpo.ellipse(sx, sy, r * 1.8, r * 0.6, 0, 0, Math.PI * 2); fpo.fill();
+    }
+  }
+
+  function fpMode(p, m) {
+    if (p.inside === "airship") return airship(m).vis ? "air" : "away";
+    return p.inside && byId[p.inside] ? "in" : "out";
+  }
+  function renderFP(t, now, realDt) {
+    fpSize();
+    const m = state.min % 1440, p = people.find((q) => q.id === state.selId);
+    if (!p) return;
+    const mode = fpMode(p, m), walking = !!(p.path && p.path.length);
+    // where the eyes are and which way they look
+    let target = p.dir, hz = 0.5;
+    if (mode === "in") {
+      // just inside the door, looking into the room
+      const b = byId[p.inside], dr = b.door, ex = dr.face === "y" ? b.x + dr.u : b.x + b.w - 0.4, ey = dr.face === "y" ? b.y + b.d - 0.4 : b.y + dr.v;
+      fp.cx = ex; fp.cy = ey; fp.cz = EYE;
+      target = Math.atan2(b.y + b.d / 2 - ey, b.x + b.w / 2 - ex);
+    } else if (mode === "air" || mode === "away") {
+      const s = airship(m);
+      if (s.vis) { fp.cx = s.pos[0]; fp.cy = s.pos[1]; fp.cz = s.pos[2] * PROP_Z - 0.2; target = Math.atan2(N / 2 - s.pos[1], N / 2 - s.pos[0]); }
+      hz = mode === "air" ? 0.22 : 0.45;
+    } else {
+      fp.cx = p.x; fp.cy = p.y; fp.cz = EYE + (walking ? Math.abs(Math.sin(p.step * Math.PI)) * 0.03 : 0);
+    }
+    fp.yaw += wrapA(target - fp.yaw) * Math.min(1, realDt * (mode === "in" ? 3 : 5));
+    if (walking && !fpDragging()) { const k = Math.exp(-realDt * 0.8); fp.look *= k; fp.pitch *= k; }
+    const yaw = fp.yaw + fp.look;
+    fp.cos = Math.cos(yaw); fp.sin = Math.sin(yaw);
+    fp.hz = fp.h * hz + fp.pitch;
+    const sb = sample(SKY, m)[1];
+    fp.fog = sb[0] === "#" ? rgbOf(sb).slice() : sb.match(/\d+/g).slice(0, 3).map(Number);
+    for (const q of people) q.fpHit = null;
+    fpLights.length = 0; lights.length = 0;
+
+    const saveYaw = fp.yaw; fp.yaw = yaw;
+    fpSky(m, now, mode === "away");
+    fsc.setTransform(1, 0, 0, 1, 0, 0);
+    fsc.clearRect(0, 0, fp.w, fp.h);
+    let dark = sample(LIGHT, m);
+    if (mode === "away") fpClouds(t);
+    else if (mode === "in") dark = fpRoom(byId[p.inside], p, m, t);
+    else { fpGround(); fpTown(p, m, t, mode === "air"); }
+    fp.yaw = saveYaw;
+
+    // night: darken the scene (not the sky), cut holes for the lights, then add their glow
+    const [alpha, tint] = dark;
+    if (alpha > 0.01) {
+      const d = fpDark.getContext("2d");
+      d.globalCompositeOperation = "source-over";
+      d.clearRect(0, 0, fp.w, fp.h);
+      d.fillStyle = tint; d.globalAlpha = alpha; d.fillRect(0, 0, fp.w, fp.h); d.globalAlpha = 1;
+      d.globalCompositeOperation = "destination-out";
+      for (const L of fpLights) {
+        const g = d.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+        g.addColorStop(0, `rgba(0,0,0,${0.9 * L.a})`); g.addColorStop(1, "rgba(0,0,0,0)");
+        d.fillStyle = g; d.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
+      }
+      fsc.globalCompositeOperation = "source-atop";
+      fsc.drawImage(fpDark, 0, 0);
+      fsc.globalCompositeOperation = "source-over";
+    }
+    fpo.drawImage(fpScene, 0, 0);
+    if (alpha > 0.01) {
+      fpo.globalCompositeOperation = "lighter";
+      const strength = alpha / 0.66;
+      for (const L of fpLights) {
+        const g = fpo.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r * 0.7);
+        g.addColorStop(0, `rgba(${L.c},${0.35 * L.a * strength})`); g.addColorStop(1, `rgba(${L.c},0)`);
+        fpo.fillStyle = g; fpo.fillRect(L.x - L.r, L.y - L.r, L.r * 2, L.r * 2);
+      }
+      fpo.globalCompositeOperation = "source-over";
+    }
+  }
+
+  function presentFP(now) {
+    vctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    vctx.imageSmoothingEnabled = false;
+    vctx.drawImage(fpOut, 0, 0, W, H);
+    grade(0.7);
+    const k = H / fp.h, self = people.find((q) => q.id === state.selId);
+    for (const q of people) {
+      if (!q.fpHit || q === self) continue;
+      const [x, y, , dist] = q.fpHit;
+      if (q.bubble && now - q.bubble.t < 3200 && dist < 16) drawBubble(x * k, y * k, q.bubble.text, { alpha: Math.min(1, (3200 - (now - q.bubble.t)) / 400) });
+      else if (state.hoverId === q.id) drawBubble(x * k, y * k, q.name, { bg: "#2a1f17", fg: "#f3e6c8", edge: "#d9a441" });
+    }
+    for (let i = floaters.length - 1; i >= 0; i--) {
+      const f = floaters[i], age = now - f.t;
+      if (age > f.dur) { floaters.splice(i, 1); continue; }
+      drawBubble(W / 2, H * 0.24 + (floaters.length - 1 - i) * 40 - age / 60, f.text, { size: f.boom ? 20 : 14, bg: f.boom ? "#ffd27a" : "#f3e6c8", alpha: Math.min(1, (f.dur - age) / 500) });
+    }
+    if (!self) return;
+    // what they are doing, and what they just said, as a caption
+    const mode = fpMode(self, state.min % 1440);
+    const said = self.bubble && now - self.bubble.t < 3600 ? `“${self.bubble.text}”` : mode === "away" ? "Somewhere above the smog" : "";
+    const line = `${self.name} · ${activity(self)}`;
+    vctx.textBaseline = "middle";
+    vctx.font = `15px "IM Fell English", Georgia, serif`;
+    const big = `italic 18px "IM Fell English", Georgia, serif`;
+    let tw = vctx.measureText(line).width;
+    if (said) { vctx.font = big; tw = Math.max(tw, vctx.measureText(said).width); }
+    const bw = Math.min(W - 20, tw + 32), bh = said ? 58 : 34, card = $("card").getBoundingClientRect();
+    let by = H - bh - 18;
+    if (card.width && card.top < H && card.right > W / 2 - bw / 2 && card.left < W / 2 + bw / 2) by = card.top - bh - 12;
+    vctx.fillStyle = "rgba(30,22,16,0.82)"; vctx.strokeStyle = "#6b4a22"; vctx.lineWidth = 1.5;
+    vctx.beginPath(); vctx.roundRect(Math.round(W / 2 - bw / 2), Math.round(by), Math.round(bw), bh, 8); vctx.fill(); vctx.stroke();
+    vctx.textAlign = "center";
+    if (said) { vctx.font = big; vctx.fillStyle = "#f3e6c8"; vctx.fillText(said, W / 2, by + 20, bw - 16); }
+    vctx.font = `15px "IM Fell English", Georgia, serif`; vctx.fillStyle = "#d9a441";
+    vctx.fillText(line, W / 2, by + (said ? 42 : 17), bw - 16);
+    vctx.textAlign = "start";
   }
 
   // ---------------------------------------------------------------- simulation loop
@@ -1229,8 +1778,8 @@
       cam.x = lerp(cam.x, tx, 0.08); cam.y = lerp(cam.y, ty, 0.08);
     }
     updateFades(realDt);
-    render(now / 1000);
-    present(now);
+    if (fp.on) { renderFP(now / 1000, now, realDt); presentFP(now); }
+    else { render(now / 1000); present(now); }
     updateUI(m);
     requestAnimationFrame(tick);
   }
@@ -1256,8 +1805,23 @@
     $("cRole").textContent = p.role;
     $("cSched").innerHTML = p.sched.map((s, i) => `<li data-i="${i}"><span>${fmt(s.at)}</span><span>${s.label}</span></li>`).join("");
     document.querySelectorAll(".person").forEach((el) => el.classList.toggle("sel", el.dataset.id === id));
+    if (fp.on) setFP(true);
   }
-  $("cClose").addEventListener("click", () => { state.selId = state.followId = null; $("card").classList.remove("show"); document.querySelectorAll(".person").forEach((el) => el.classList.remove("sel")); });
+  // first person: see the town through the eyes of whoever is being followed
+  function setFP(on) {
+    const p = on && people.find((q) => q.id === state.selId);
+    fp.on = !!p;
+    document.body.classList.toggle("fp", fp.on);
+    $("cEyes").classList.toggle("on", fp.on);
+    $("cEyes").setAttribute("aria-pressed", fp.on);
+    if (!p) return;
+    fp.yaw = p.dir; fp.look = 0; fp.pitch = 0;
+    state.mouse = null; state.hoverId = null;
+  }
+  const fpDragging = () => !!(fp.on && drag && drag.moved);
+  $("cEyes").addEventListener("click", () => setFP(!fp.on));
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && fp.on) setFP(false); });
+  $("cClose").addEventListener("click", () => { setFP(false); state.selId = state.followId = null; $("card").classList.remove("show"); document.querySelectorAll(".person").forEach((el) => el.classList.remove("sel")); });
   let lastUi = 0, tipAt = null;
   function updateUI(m) {
     const now = performance.now();
@@ -1293,7 +1857,7 @@
     $("walls").setAttribute("aria-pressed", state.walls);
   });
   $("zOut").addEventListener("click", () => zoomBy(0.8));
-  view.addEventListener("wheel", (e) => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.12 : 0.89, e.clientX, e.clientY); }, { passive: false });
+  view.addEventListener("wheel", (e) => { e.preventDefault(); if (fp.on) return; zoomBy(e.deltaY < 0 ? 1.12 : 0.89, e.clientX, e.clientY); }, { passive: false });
 
   // drag to pan, pinch to zoom, click to select
   const pointers = new Map();
@@ -1301,15 +1865,22 @@
   view.addEventListener("pointerdown", (e) => {
     view.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, [e.clientX, e.clientY]);
-    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, look: fp.look, pitch: fp.pitch, moved: false };
     if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: cam.zoom }; drag = null; }
   });
   view.addEventListener("pointermove", (e) => {
     if (pointers.has(e.pointerId)) pointers.set(e.pointerId, [e.clientX, e.clientY]);
-    if (pinch && pointers.size === 2) {
+    if (pinch && pointers.size === 2 && !fp.on) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
       zoomBy((pinch.z * d / pinch.d) / cam.zoom, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+      return;
+    }
+    if (drag && fp.on) {
+      // in first person, dragging turns the head instead of panning the map
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; view.classList.add("dragging"); }
+      if (drag.moved) { fp.look = drag.look - (dx / H) * 2.2; fp.pitch = clamp(drag.pitch + (dy / H) * fp.h, -fp.h * 0.4, fp.h * 0.4); }
       return;
     }
     if (drag) {
@@ -1321,7 +1892,7 @@
     const hit = pick(e.clientX, e.clientY);
     state.hoverId = hit ? hit.id : null;
     view.style.cursor = hit ? "pointer" : "";
-    if (e.pointerType === "mouse") { state.mouse = toBuf(e.clientX, e.clientY); tipAt = [e.clientX, e.clientY]; }
+    if (e.pointerType === "mouse" && !fp.on) { state.mouse = toBuf(e.clientX, e.clientY); tipAt = [e.clientX, e.clientY]; }
   });
   const end = (e) => {
     pointers.delete(e.pointerId);
@@ -1334,6 +1905,15 @@
   view.addEventListener("pointercancel", end);
   function pick(sx, sy) {
     let best = null, bd = 1e9;
+    if (fp.on) {
+      const k = H / fp.h;
+      for (const p of people) {
+        if (!p.fpHit || p.id === state.selId) continue;
+        const [x, y, sc] = p.fpHit, d = Math.hypot(x * k - sx, y * k + 6 * sc * k - sy);
+        if (d < Math.max(18, 10 * sc * k) && d < bd) { best = p; bd = d; }
+      }
+      return best;
+    }
     for (const p of people) {
       if (p.inside || !p.screen) continue;
       const [px, py] = toScreen(p.screen[0], p.screen[1]);
@@ -1346,6 +1926,7 @@
   addEventListener("resize", resize);
   resize();
   drawGround();
+  groundPx = ground.getContext("2d").getImageData(0, 0, BW, BH);
   // lamps start lit if the page opens at night
   const m0 = state.min % 1440;
   if (m0 > 1140 || m0 < 330) lamps.forEach((l) => (l.lit = true));
@@ -1386,6 +1967,7 @@
     return out;
   }
   // test hook: window.__town.set(minutes) jumps the clock
-  window.__town = { outline, hides, state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, buildings, props, check };
+  // window.__town.eyes(id) follows someone in first person (null goes back to the town view)
+  window.__town = { outline, hides, state, people, lamps, set(min) { state.min = min; for (const p of people) { p.entry = -1; } }, eyes(id) { if (id) { select(id); setFP(true); } else setFP(false); }, buildings, props, check };
   requestAnimationFrame(tick);
 })();
