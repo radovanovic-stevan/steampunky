@@ -62,9 +62,6 @@
   #card li.cur { background: var(--sel); color: var(--ink); }
   #card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; }
   #zoom { right: 14px; bottom: 14px; padding: 6px; display: flex; gap: 6px; }
-  #card .btns { display: flex; gap: 6px; }
-  #cEyes.on { background: linear-gradient(#e2b453, #a87a26); color: #241708; border-color: #f1d08a; }
-  body.fp #zoom, body.fp #hint, body.fp #tip { display: none; }
   #tip { position: fixed; display: none; pointer-events: none; z-index: 5; padding: 3px 9px; border-radius: 5px; background: var(--panel); border: 1px solid var(--panel-edge); color: var(--ink); font-size: 13px; white-space: nowrap; }
   #tip.show { display: block; }
   #hint { left: 50%; transform: translateX(-50%); bottom: 14px; padding: 6px 14px; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
@@ -124,7 +121,7 @@
   <div class="role" id="cRole"></div>
   <div class="now" id="cNow"></div>
   <ol id="cSched"></ol>
-  <div class="row"><span class="tag" style="margin:0">Following</span><span class="btns"><button id="cEyes" aria-pressed="false" title="See the town through their eyes (Esc to step back)">Their eyes</button><button id="cClose">Stop following</button></span></div>
+  <div class="row"><span class="tag" style="margin:0">Following</span><button id="cClose">Stop following</button></div>
 </div>
 
 <div id="hint" class="panel">Drag to look around · scroll to zoom · point at a building to see behind it · click someone to follow them</div>
