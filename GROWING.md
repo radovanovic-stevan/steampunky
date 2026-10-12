@@ -33,11 +33,6 @@ values are referenced by schedules).
   screen outline from its walls, roof and chimneys, so a new roof shape needs a case there.
 - `prop(kind, x, y)`: trees, tanks, cogs, turbines, valves, benches, crates, barrels and so on.
   Every prop blocks its tile. New kinds need a branch in `drawProp`.
-- The first-person view ("Their eyes") draws the same town in perspective. Props, people and the
-  airship come from `drawProp`, `drawPerson` and `drawAirship`, so they show up there on their own.
-  Buildings are drawn by `fpBuilding`, which handles the `gable`, `spire` and `flat` roofs; a new
-  roof type needs a case there too. `FURNITURE` lists what stands inside each building (anything
-  missing gets a bed, a table and a stove).
 - `lampSpots`: street lamps; Pip lights and snuffs them in this order.
 - `places` and `placeName`: named spots people can walk to.
 - `people`: each person has `home`, `look` and `sched`. A schedule is a list of

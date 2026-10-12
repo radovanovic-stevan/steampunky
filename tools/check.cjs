@@ -45,17 +45,7 @@ const server = http.createServer((req, res) => {
     await page.waitForTimeout(1200);
     await page.screenshot({ path: path.join(out, `${name}.png`) });
   }
-  // first person: out on the street, indoors, at night with the lamps, and from the airship
-  // (each clock is wound back about 50 minutes and run fast so everyone is where they belong)
-  for (const [name, id, min] of [["eyes-street", "barnaby", 9 * 60 + 58], ["eyes-indoors", "barnaby", 5 * 60], ["eyes-night", "pip", 18 * 60 + 45], ["eyes-airship", "rook", 15 * 60]]) {
-    await page.evaluate(([who, m]) => { window.__town.set(m); window.__town.eyes(who); window.__town.state.speed = 30; }, [id, min]);
-    await page.waitForTimeout(800);
-    await page.evaluate(() => (window.__town.state.speed = 1));
-    await page.waitForTimeout(600);
-    await page.screenshot({ path: path.join(out, `${name}.png`) });
-  }
-  await page.evaluate(() => window.__town.eyes(null));
-
+  await page.click("#logToggle");
   await page.waitForTimeout(200);
   await page.screenshot({ path: path.join(out, "changelog.png") });
 

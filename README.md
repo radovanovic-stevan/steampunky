@@ -25,15 +25,10 @@ see-through when they hide someone (the person you follow most of all) or when y
 them, and the Walls button lowers every building to its floor so the whole town is visible. The clock runs at
 1×, 3× or 10×, or can be paused.
 
-While following someone, **Their eyes** switches to a first-person view: you walk their round at
-eye height, see who they pass and what they say, go indoors with them (each building has its own
-furnishings), and ride along on the airship with Captain Rook. Drag to look around; Esc or the
-button goes back to the town.
-
 ## Files
 
 - `index.html`: page and UI
-- `town.js`: map, rendering, lighting, the first-person view and the scripted schedules
+- `town.js`: map, rendering, lighting and the scripted schedules
 - `changelog.json`: the town log, one line per change, shown under the Town log button
 - `GROWING.md`: how the town changes on its own every other day
 - `tools/check.cjs`: headless check and screenshots (`node tools/check.cjs`)
