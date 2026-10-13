@@ -96,6 +96,7 @@
   prop("crates", 21, 21); prop("crates", 16, 21); prop("barrels", 14, 20); prop("barrels", 21, 16);
   prop("mailbox", 20, 13);
   prop("coop", 13, 4);
+  prop("barometer", 6, 4);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -335,7 +336,9 @@
       particles.push({ x: sx + (Math.random() - 0.5) * 3 * spread, y: sy, vx: (Math.random() - 0.3) * 4 * spread + 3, vy: -8 - Math.random() * 6 * spread, r: 1.5 + Math.random() * 1.5 * spread, life: 0, max: 2.2 + Math.random() * 1.6, color });
     }
   }
+  let lastBoom = { t: -1e9, big: false };
   function boom(big) {
+    lastBoom = { t: performance.now(), big: !!big };
     const c = byId.workshop.chimneys[0];
     const [sx, sy] = P(c.x, c.y, c.z);
     const colors = ["#8a8a8a", "#5c5c5c", "#c9a54a", "#e86a2a", "#9a6abf"];
@@ -828,6 +831,20 @@
         ctx.fillStyle = "#c8c6c0"; ctx.fillRect(Math.round(bx) + 1, Math.round(by) - 1, 1, 1);
         if (flap >= 0) { ctx.fillStyle = "#6a6c74"; ctx.fillRect(Math.round(bx) - 2, Math.round(by) - (flap ? 2 : -1), 2, 1); ctx.fillRect(Math.round(bx) + 1, Math.round(by) - (flap ? 2 : -1), 2, 1); }
       }
+    } else if (p.kind === "barometer") {
+      // Ada's storm glass: a brass dial on an iron post by the workshop yard; the needle leaps when an experiment goes off
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.44, y + 0.44, 0, 0.12, 0.12, 16, "#2e2a26");
+      box(x + 0.3, y + 0.3, 0, 0.4, 0.4, 2, "#4a4a52");
+      const dx = Math.round(cx), dy = Math.round(cy) - 22;
+      ctx.fillStyle = "#c9a54a"; ctx.beginPath(); ctx.arc(dx, dy, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#f3e6c8"; ctx.beginPath(); ctx.arc(dx, dy, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#b8302a"; ctx.fillRect(dx + 2, dy - 4, 2, 2);
+      const age = (performance.now() - lastBoom.t) / 1000;
+      const kick = age < 4 ? Math.exp(-age * 0.9) * (lastBoom.big ? 1.9 : 1.2) * Math.cos(age * 7) : 0;
+      const ang = -Math.PI / 2 - 0.5 + Math.sin(t * 0.3) * 0.15 + kick;
+      ctx.strokeStyle = "#2a1a10"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx + Math.cos(ang) * 4.5, dy + Math.sin(ang) * 4.5); ctx.stroke();
+      ctx.fillStyle = "#2a1a10"; ctx.fillRect(dx, dy, 1, 1);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
