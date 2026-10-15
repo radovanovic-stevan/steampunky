@@ -97,6 +97,7 @@
   prop("mailbox", 20, 13);
   prop("coop", 13, 4);
   prop("barometer", 6, 4);
+  prop("noticeboard", 8, 10);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -845,6 +846,18 @@
       const ang = -Math.PI / 2 - 0.5 + Math.sin(t * 0.3) * 0.15 + kick;
       ctx.strokeStyle = "#2a1a10"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx + Math.cos(ang) * 4.5, dy + Math.sin(ang) * 4.5); ctx.stroke();
       ctx.fillStyle = "#2a1a10"; ctx.fillRect(dx, dy, 1, 1);
+    } else if (p.kind === "noticeboard") {
+      // Odette's notice board: a small roofed board on two iron posts at the edge of the square, with pinned papers that stir in the breeze
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.12, y + 0.4, 0, 0.1, 0.1, 22, "#2e2a26");
+      box(x + 0.78, y + 0.4, 0, 0.1, 0.1, 22, "#2e2a26");
+      box(x + 0.1, y + 0.36, 8, 0.8, 0.18, 12, "#6b4a2a");
+      box(x + 0.06, y + 0.3, 20, 0.88, 0.3, 3, "#4f8a78");
+      const bx = Math.round(cx), by = Math.round(cy);
+      const sway = Math.sin(t * 1.7 + x) > 0.6 ? 1 : 0;
+      ctx.fillStyle = "#f3e6c8"; ctx.fillRect(bx - 5, by - 17, 4, 5); ctx.fillRect(bx + 1, by - 16 + sway, 4, 4); ctx.fillRect(bx - 3, by - 11, 5, 3);
+      ctx.fillStyle = "#b8302a"; ctx.fillRect(bx - 4, by - 18, 1, 1); ctx.fillRect(bx + 2, by - 17 + sway, 1, 1);
+      ctx.fillStyle = "#6b5a44"; ctx.fillRect(bx - 4, by - 15, 2, 1); ctx.fillRect(bx + 2, by - 14 + sway, 2, 1); ctx.fillRect(bx - 2, by - 10, 3, 1);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
