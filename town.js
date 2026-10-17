@@ -98,6 +98,7 @@
   prop("coop", 13, 4);
   prop("barometer", 6, 4);
   prop("noticeboard", 8, 10);
+  prop("pump", 14, 9);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -133,10 +134,10 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -194,6 +195,8 @@
         S("07:00", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("12:00", [go("benchN", { stay: 50, say: "Ada talks gauges again" }), go("boiler")], "Lunch break"),
         S("13:15", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
+        S("15:30", [go("pump", { stay: 6, say: "Fresh water for the boiler" }), go("boiler", { stay: 3, say: "Topping up the tank", enter: false })], "Fetching water from the pump"),
+        S("15:50", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("18:00", [go("tavern")], "A pint at the Kettle"),
         S("21:30", [go("cottageNE")], "Home to sleep"),
       ],
@@ -858,6 +861,20 @@
       ctx.fillStyle = "#f3e6c8"; ctx.fillRect(bx - 5, by - 17, 4, 5); ctx.fillRect(bx + 1, by - 16 + sway, 4, 4); ctx.fillRect(bx - 3, by - 11, 5, 3);
       ctx.fillStyle = "#b8302a"; ctx.fillRect(bx - 4, by - 18, 1, 1); ctx.fillRect(bx + 2, by - 17 + sway, 1, 1);
       ctx.fillStyle = "#6b5a44"; ctx.fillRect(bx - 4, by - 15, 2, 1); ctx.fillRect(bx + 2, by - 14 + sway, 2, 1); ctx.fillRect(bx - 2, by - 10, 3, 1);
+    } else if (p.kind === "pump") {
+      // the town pump: a cast-iron hand pump on a stone trough at the east edge of the square, dripping into the basin
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.12, y + 0.2, 0, 0.76, 0.6, 5, "#6e6a62");
+      poly(ctx, [P(x + 0.2, y + 0.26, 5), P(x + 0.82, y + 0.26, 5), P(x + 0.82, y + 0.74, 5), P(x + 0.2, y + 0.74, 5)], "#4f6e6a");
+      box(x + 0.62, y + 0.4, 5, 0.16, 0.16, 15, "#2e2a26");
+      box(x + 0.58, y + 0.36, 20, 0.26, 0.24, 3, "#4f8a78");
+      const px = Math.round(cx) + 3, py = Math.round(cy) - 22;
+      const swing = Math.sin(t * 0.6) > 0.92 ? 3 : 0;
+      ctx.strokeStyle = "#2e2a26"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, py + 1); ctx.lineTo(px - 8, py - 3 + swing); ctx.stroke();
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(px - 9, py - 4 + swing, 2, 2);
+      ctx.fillStyle = "#2e2a26"; ctx.fillRect(px - 4, py + 5, 3, 2);
+      const ph = (t * 1.2) % 1;
+      ctx.fillStyle = "rgba(200,230,255,0.85)"; ctx.fillRect(px - 3, Math.round(py + 7 + ph * 11), 1, 1);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
