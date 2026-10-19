@@ -99,6 +99,7 @@
   prop("barometer", 6, 4);
   prop("noticeboard", 8, 10);
   prop("pump", 14, 9);
+  prop("weathervane", 17, 20);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -861,6 +862,20 @@
       ctx.fillStyle = "#f3e6c8"; ctx.fillRect(bx - 5, by - 17, 4, 5); ctx.fillRect(bx + 1, by - 16 + sway, 4, 4); ctx.fillRect(bx - 3, by - 11, 5, 3);
       ctx.fillStyle = "#b8302a"; ctx.fillRect(bx - 4, by - 18, 1, 1); ctx.fillRect(bx + 2, by - 17 + sway, 1, 1);
       ctx.fillStyle = "#6b5a44"; ctx.fillRect(bx - 4, by - 15, 2, 1); ctx.fillRect(bx + 2, by - 14 + sway, 2, 1); ctx.fillRect(bx - 2, by - 10, 3, 1);
+    } else if (p.kind === "weathervane") {
+      // Captain Rook's weathervane: a brass airship on an iron post at the dock, turning slowly to face the wind
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.3, y + 0.3, 0, 0.4, 0.4, 2, "#4a4a52");
+      box(x + 0.45, y + 0.45, 0, 0.1, 0.1, 30, "#2e2a26");
+      const wx = Math.round(cx), wy = Math.round(cy) - 34;
+      const dir = Math.sin(t * 0.25 + x) > 0 ? 1 : -1, wob = Math.sin(t * 0.9) > 0.7 ? 1 : 0;
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(wx - 1, wy + 2, 3, 2);
+      ctx.fillStyle = "#b06a3b"; ctx.beginPath(); ctx.ellipse(wx, wy - wob, 8, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = OUTLINE; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = "#f0d890"; ctx.fillRect(wx - 4, wy - 1 - wob, 8, 1);
+      ctx.fillStyle = "#4f8a78"; ctx.fillRect(wx - dir * 9, wy - 3 - wob, 3, 6);
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(wx + dir * 5, wy + 3 - wob, 3, 1);
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(wx - 3, wy + 3 - wob, 6, 1);
     } else if (p.kind === "pump") {
       // the town pump: a cast-iron hand pump on a stone trough at the east edge of the square, dripping into the basin
       ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
