@@ -71,6 +71,7 @@
     B({ id: "house3", name: "Postmistress's House", x: 4, y: 19, w: 3, d: 3, h: 20, wall: "#5e6466", roof: { type: "gable", dir: "y", h: 12, color: "#b06a3b" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]], horn: true, plates: true }),
     B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true }),
     B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
+    B({ id: "gaugeshed", name: "Steamwright Gauge Shed", x: 5, y: 10, w: 2, d: 2, h: 14, wall: "#5c6a64", roof: { type: "gable", dir: "y", h: 8, color: "#b06a3b" }, door: { face: "x", v: 0.5 }, chim: [[0.6, 1.3, 10]], gauge: true, pipe: true, plates: true }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
   for (const b of buildings) {
@@ -196,6 +197,7 @@
         S("07:00", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("12:00", [go("benchN", { stay: 50, say: "Ada talks gauges again" }), go("boiler")], "Lunch break"),
         S("13:15", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
+        S("14:30", [go("gaugeshed", { stay: 8, say: "Checking the gauges against the master dial" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", enter: false }), { loop: true }], "Calibrating gauges in the shed"),
         S("15:30", [go("pump", { stay: 6, say: "Fresh water for the boiler" }), go("boiler", { stay: 3, say: "Topping up the tank", enter: false })], "Fetching water from the pump"),
         S("15:50", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("18:00", [go("tavern")], "A pint at the Kettle"),
