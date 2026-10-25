@@ -8,12 +8,12 @@ low-resolution canvas and scaled up as pixel art, with no image files and no bui
 | Who | Does what |
 |---|---|
 | Ada Cogsworth, inventor | Works in the workshop and blows it up twice a day |
-| Barnaby Bunsworth, baker | Bakes from 5:00, delivers bread at 10:00, runs a market stall |
+| Barnaby Bunsworth, baker | Bakes from 5:00, brings hot buns to the tea kiosk at 7:30, delivers bread at 10:00, runs a market stall |
 | Pip Wicklow, lamplighter | Snuffs the street lamps at dawn and lights them again at dusk |
 | Odette Quill, postmistress | Two rounds of letters from the pneumatic post office |
 | Mabel Steamwright, boiler engineer | Carries coal to the boiler all day and calibrates gauges in her shed at half past two |
 | Fergus Barrow, tavern keeper | Opens The Rusty Kettle at 16:45 |
-| Tilly Fenwick, tea seller | Runs the tea kiosk, does a tea round at 10:30 and serves the bench at noon, and pours Captain Rook his afternoon tea |
+| Tilly Fenwick, tea seller | Runs the tea kiosk, takes in Barnaby's morning buns, does a tea round at 10:30 and serves the bench at noon, and pours Captain Rook his afternoon tea |
 | Captain Rook, airship captain | Arrives by airship at 10:00 and leaves at 16:00, with tea at the kiosk before he goes |
 
 There's also a steam tram, an hourly bell, a day/night cycle and smoke from every chimney.

@@ -163,6 +163,7 @@
       look: { coat: "#e8e0d0", trim: "#c9a27a", skin: "#e8b48a", hair: "#3b2a1e", hat: "chef" },
       sched: [
         S("05:00", [go("bakery")], "Firing up the ovens"),
+        S("07:30", [go("kiosk", { stay: 8, say: "Hot buns for the tea kiosk", carry: "bread", enter: false }), go("bakery", { carry: null })], "Buns for the tea kiosk"),
         S("10:00", [go("house1", { stay: 3, say: "Fresh bread!", carry: "bread" }), go("cottageN", { stay: 3, say: "Loaf for the lamplighter" }), go("tavern", { stay: 4, say: "Twelve loaves for the Kettle" }), go("house3", { stay: 3, say: "Fresh bread!" }), go("bakery", { carry: null })], "Delivering bread"),
         S("15:00", [go("market", { stay: 40, say: "Selling the last buns" }), go("bakery")], "Market stall"),
         S("18:00", [go("house2")], "Home for supper"),
@@ -218,6 +219,7 @@
       look: { coat: "#8a5a7a", trim: "#e8e0d0", skin: "#f0c9a0", hair: "#3a2418", hat: "bonnet" },
       sched: [
         S("07:00", [go("kiosk", { stay: 2, say: "Kettle's on" })], "Opening the tea kiosk"),
+        S("07:30", [go("kiosk", { stay: 8, say: "Barnaby's buns, still warm", enter: false })], "Taking in the morning buns"),
         S("10:30", [go("workshop", { stay: 4, say: "Tea for the inventor" }), go("boiler", { stay: 4, say: "Tea for the stokers" }), go("kiosk")], "Tea round"),
         S("12:10", [go("benchN", { stay: 6, say: "Tea for the gauge talkers" }), go("kiosk")], "Tea to the bench"),
         S("14:25", [go("kiosk", { stay: 14, say: "One for the Captain, mind the steam", enter: false })], "Serving the Captain"),
