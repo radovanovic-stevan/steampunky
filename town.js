@@ -100,6 +100,7 @@
   prop("barometer", 6, 4);
   prop("noticeboard", 8, 10);
   prop("pump", 14, 9);
+  prop("statue", 13, 11);
   prop("weathervane", 17, 20);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
   const lamps = [];
@@ -896,6 +897,19 @@
       ctx.fillStyle = "#2e2a26"; ctx.fillRect(px - 4, py + 5, 3, 2);
       const ph = (t * 1.2) % 1;
       ctx.fillStyle = "rgba(200,230,255,0.85)"; ctx.fillRect(px - 3, Math.round(py + 7 + ph * 11), 1, 1);
+    } else if (p.kind === "statue") {
+      // the founder's statue: a verdigris bronze engineer holding up a brass cog, on a stone plinth in the square
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.12, y + 0.12, 0, 0.76, 0.76, 4, "#77726a");
+      box(x + 0.22, y + 0.22, 4, 0.56, 0.56, 12, "#8a857b");
+      box(x + 0.28, y + 0.28, 16, 0.44, 0.44, 2, "#6e6a62");
+      box(x + 0.36, y + 0.36, 18, 0.28, 0.28, 14, "#4f8a78");
+      box(x + 0.4, y + 0.4, 32, 0.2, 0.2, 5, "#5f9c88");
+      const sx = Math.round(cx), sy = Math.round(cy) - 41;
+      const turn = Math.floor(t * 0.8) % 8;
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(sx + 4, sy - 2, 5, 5); ctx.fillRect(sx + 6, sy - 3, 1, 1); ctx.fillRect(sx + 6, sy + 3, 1, 1);
+      ctx.fillStyle = turn < 1 ? "#f0d890" : "#a8832f"; ctx.fillRect(sx + 6, sy, 1, 1);
+      ctx.fillStyle = "#4f8a78"; ctx.fillRect(sx + 2, sy + 2, 3, 2);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
