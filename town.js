@@ -102,7 +102,7 @@
   prop("pump", 14, 9);
   prop("statue", 13, 11);
   prop("weathervane", 17, 20);
-  const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7]];
+  const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
 
