@@ -187,6 +187,7 @@
         S("08:30", [go("post")], "Sorting the morning tubes"),
         S("10:30", [go("house1", { stay: 3, say: "Letter for Miss Cogsworth!", carry: "letter" }), go("clock", { stay: 3, say: "Telegram for the tower" }), go("boiler", { stay: 3, say: "Parcel of rivets" }), go("cottageNE", { stay: 3, say: "Letter for you!" }), go("tavern", { stay: 3, say: "Bills, I'm afraid" }), go("house2", { stay: 3, say: "Letter for you!" }), go("post", { carry: null }), { loop: true }], "Delivering the post"),
         S("12:30", [go("benchS", { stay: 40, say: "A quiet sandwich" }), go("post")], "Lunch on the bench"),
+        S("13:30", [go("pigeons", { stay: 22, say: "Crumbs for Pip's pigeons" }), go("post")], "Feeding the pigeons with Pip"),
         S("14:00", [go("cottageN", { stay: 3, say: "Letter for Pip!", carry: "letter" }), go("bakery", { stay: 3, say: "Flour invoice" }), go("workshop", { stay: 3, say: "Strange parcel. It's ticking." }), go("post", { carry: null }), { loop: true }], "Afternoon round"),
         S("17:30", [go("house3")], "Home for the evening"),
       ],
