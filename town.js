@@ -4,7 +4,7 @@
   "use strict";
 
   // ---------------------------------------------------------------- constants
-  const N = 22;                 // map is N x N tiles
+  const N = 26;                 // map is N x N tiles
   const TW = 16, TH = 8;        // half tile width / height in buffer pixels
   const TOP = 190;              // headroom above the map for towers and the airship
   const BW = N * TW * 2 + 40, BH = TOP + N * TH * 2 + 40;
@@ -53,7 +53,7 @@
   const OUTLINE = "rgba(20,12,8,0.55)";
 
   // ---------------------------------------------------------------- map
-  const isStreet = (x, y) => y === 6 || y === 14 || x === 7 || x === 15;
+  const isStreet = (x, y) => y === 6 || y === 14 || x === 7 || x === 15 || (y === 18 && x >= 22);
   const isPlaza = (x, y) => x >= 8 && x <= 14 && y >= 7 && y <= 13;
   const isDock = (x, y) => x >= 16 && x <= 21 && y >= 15 && y <= 21;
 
@@ -72,6 +72,7 @@
     B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true }),
     B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
     B({ id: "gaugeshed", name: "Steamwright Gauge Shed", x: 5, y: 10, w: 2, d: 2, h: 14, wall: "#5c6a64", roof: { type: "gable", dir: "y", h: 8, color: "#b06a3b" }, door: { face: "x", v: 0.5 }, chim: [[0.6, 1.3, 10]], gauge: true, pipe: true, plates: true }),
+    B({ id: "dockoffice", name: "Harbour Master's Office", x: 23, y: 15, w: 2, d: 3, h: 16, wall: "#4a5a66", roof: { type: "gable", dir: "x", h: 9, color: "#8f4b35" }, door: { face: "y", u: 0.5 }, chim: [[1.4, 0.6, 12]], pipe: true, plates: true }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
   for (const b of buildings) {
@@ -235,7 +236,7 @@
       look: { coat: "#2b3550", trim: "#d9a441", skin: "#c99a74", hair: "#2a2a2a", hat: "tophat", beard: true },
       sched: [
         S("00:00", [go("airship")], "Away on the airship"),
-        S("10:10", [go("dock", { stay: 6, say: "Ahoy, Steampunky!" }), go("post", { stay: 10, say: "Air mail, three sacks", carry: "sack" }), go("tavern", { carry: null })], "Unloading the air mail"),
+        S("10:10", [go("dock", { stay: 6, say: "Ahoy, Steampunky!" }), go("dockoffice", { stay: 8, say: "Signing the harbour book" }), go("post", { stay: 10, say: "Air mail, three sacks", carry: "sack" }), go("tavern", { carry: null })], "Unloading the air mail"),
         S("13:00", [go("fountain", { stay: 30, say: "Lovely weather for flying" }), go("clock", { stay: 4, say: "Setting my pocket watch" }), go("tavern")], "A stroll around town"),
         S("14:20", [go("kiosk", { stay: 18, say: "Strong tea, two sugars, Miss Fenwick", enter: false }), go("tavern")], "Tea at the Fenwick kiosk"),
         S("15:20", [go("airship")], "Back aboard the airship"),
