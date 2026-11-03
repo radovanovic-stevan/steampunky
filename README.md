@@ -12,7 +12,7 @@ low-resolution canvas and scaled up as pixel art, with no image files and no bui
 | Pip Wicklow, lamplighter | Snuffs the street lamps at dawn and lights them again at dusk |
 | Odette Quill, postmistress | Two rounds of letters from the pneumatic post office, and feeds the pigeons with Pip at half past one |
 | Mabel Steamwright, boiler engineer | Carries coal to the boiler all day and calibrates gauges in her shed at half past two |
-| Fergus Barrow, tavern keeper | Opens The Rusty Kettle at 16:45 |
+| Fergus Barrow, tavern keeper | Pins the evening menu on the square's noticeboard at 15:45, then opens The Rusty Kettle at 16:45 |
 | Tilly Fenwick, tea seller | Runs the tea kiosk, takes in Barnaby's morning buns, does a tea round at 10:30 and serves the bench at noon, and pours Captain Rook his afternoon tea |
 | Captain Rook, airship captain | Arrives by airship at 10:00, signs the harbour book at the Harbour Master's Office, and leaves at 16:00 with tea at the kiosk before he goes |
 
