@@ -102,6 +102,7 @@
   prop("noticeboard", 8, 10);
   prop("pump", 14, 9);
   prop("statue", 13, 11);
+  prop("sundial", 12, 8);
   prop("weathervane", 17, 20);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
   const lamps = [];
@@ -138,10 +139,10 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], noticeboard: [9, 10],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", noticeboard: "the noticeboard", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -166,6 +167,7 @@
       sched: [
         S("05:00", [go("bakery")], "Firing up the ovens"),
         S("07:30", [go("kiosk", { stay: 8, say: "Hot buns for the tea kiosk", carry: "bread", enter: false }), go("bakery", { carry: null })], "Buns for the tea kiosk"),
+        S("09:00", [go("sundial", { stay: 6, say: "Shadow says the loaves are due" }), go("bakery")], "Checking the sundial"),
         S("10:00", [go("house1", { stay: 3, say: "Fresh bread!", carry: "bread" }), go("cottageN", { stay: 3, say: "Loaf for the lamplighter" }), go("tavern", { stay: 4, say: "Twelve loaves for the Kettle" }), go("house3", { stay: 3, say: "Fresh bread!" }), go("bakery", { carry: null })], "Delivering bread"),
         S("15:00", [go("market", { stay: 40, say: "Selling the last buns" }), go("bakery")], "Market stall"),
         S("18:00", [go("house2")], "Home for supper"),
@@ -846,6 +848,18 @@
         ctx.fillStyle = "#c8c6c0"; ctx.fillRect(Math.round(bx) + 1, Math.round(by) - 1, 1, 1);
         if (flap >= 0) { ctx.fillStyle = "#6a6c74"; ctx.fillRect(Math.round(bx) - 2, Math.round(by) - (flap ? 2 : -1), 2, 1); ctx.fillRect(Math.round(bx) + 1, Math.round(by) - (flap ? 2 : -1), 2, 1); }
       }
+    } else if (p.kind === "sundial") {
+      // a brass sundial on a stone pedestal in the square; the gnomon's shadow swings with the sun
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.3, y + 0.3, 0, 0.4, 0.4, 3, "#8a857a");
+      box(x + 0.38, y + 0.38, 3, 0.24, 0.24, 8, "#9a948a");
+      box(x + 0.2, y + 0.2, 11, 0.6, 0.6, 2, "#c9a54a");
+      const [tx, ty] = P(x + 0.5, y + 0.5, 13);
+      const sa = ((m / 1440) - 0.5) * 2.6;
+      const day = !isNight(m);
+      ctx.fillStyle = "#6b5a2a"; ctx.fillRect(Math.round(tx) - 4, Math.round(ty), 1, 1); ctx.fillRect(Math.round(tx) + 4, Math.round(ty), 1, 1);
+      if (day) { ctx.strokeStyle = "rgba(40,30,20,0.55)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx + Math.sin(sa) * 6, ty + 1 + Math.abs(Math.cos(sa)) * 2); ctx.stroke(); }
+      ctx.fillStyle = "#2e2a26"; ctx.fillRect(Math.round(tx), Math.round(ty) - 3, 1, 3);
     } else if (p.kind === "barometer") {
       // Ada's storm glass: a brass dial on an iron post by the workshop yard; the needle leaps when an experiment goes off
       ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
