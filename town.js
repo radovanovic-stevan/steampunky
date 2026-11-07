@@ -72,6 +72,7 @@
     B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true }),
     B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
     B({ id: "gaugeshed", name: "Steamwright Gauge Shed", x: 5, y: 10, w: 2, d: 2, h: 14, wall: "#5c6a64", roof: { type: "gable", dir: "y", h: 8, color: "#b06a3b" }, door: { face: "x", v: 0.5 }, chim: [[0.6, 1.3, 10]], gauge: true, pipe: true, plates: true }),
+    B({ id: "clockshop", name: "Thimble Clockmaker's Shop", x: 22, y: 11, w: 2, d: 3, h: 18, wall: "#6a4e3a", roof: { type: "gable", dir: "y", h: 10, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 14]], sign: "gear", gear: { face: "x", v: 1.5, z: 12, r: 5, teeth: 8, speed: 1.1 }, pipe: true }),
     B({ id: "dockoffice", name: "Harbour Master's Office", x: 23, y: 15, w: 2, d: 3, h: 16, wall: "#4a5a66", roof: { type: "gable", dir: "x", h: 9, color: "#8f4b35" }, door: { face: "y", u: 0.5 }, chim: [[1.4, 0.6, 12]], pipe: true, plates: true }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
@@ -232,6 +233,19 @@
         S("15:30", [go("market", { stay: 30, say: "Hot tea, two pennies" }), go("kiosk")], "Tea in the square"),
         S("19:30", [go("tavern", { stay: 40, say: "A pot of tea, Fergus" }), go("kiosk")], "A quiet evening at the Kettle"),
         S("21:30", [go("kiosk")], "Home to sleep"),
+      ],
+    },
+    {
+      id: "ignatius", name: "Ignatius Thimble", role: "Clockmaker", home: "clockshop",
+      look: { coat: "#4a4036", trim: "#c9a54a", skin: "#e0b890", hair: "#b8b0a0", hat: "cap" },
+      sched: [
+        S("08:00", [go("clockshop", { stay: 2, say: "Springs and escapements" })], "Opening the clock shop"),
+        S("08:50", [go("sundial", { stay: 8, say: "The sun is four minutes slow" }), go("clockshop")], "Checking the sundial against his watch"),
+        S("09:30", [go("clock", { stay: 8, say: "Winding the great spring" }), go("clockshop")], "Winding the clocktower"),
+        S("12:00", [go("kiosk", { stay: 14, say: "Tea, and a moment's quiet", enter: false }), go("clockshop")], "Tea at the kiosk"),
+        S("15:00", [go("clock", { stay: 6, say: "Oiling the hands" }), go("clockshop")], "Oiling the clocktower"),
+        S("18:30", [go("tavern", { stay: 60, say: "Not a tick out of place" }), go("clockshop")], "An evening at the Kettle"),
+        S("21:30", [go("clockshop")], "Home to sleep"),
       ],
     },
     {
