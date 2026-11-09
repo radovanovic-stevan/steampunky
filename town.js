@@ -104,6 +104,7 @@
   prop("pump", 14, 9);
   prop("statue", 13, 11);
   prop("sundial", 12, 8);
+  prop("telegraph", 20, 12);
   prop("weathervane", 17, 20);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
   const lamps = [];
@@ -140,10 +141,10 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -193,6 +194,7 @@
         S("12:30", [go("benchS", { stay: 40, say: "A quiet sandwich" }), go("post")], "Lunch on the bench"),
         S("13:30", [go("pigeons", { stay: 22, say: "Crumbs for Pip's pigeons" }), go("post")], "Feeding the pigeons with Pip"),
         S("14:00", [go("cottageN", { stay: 3, say: "Letter for Pip!", carry: "letter" }), go("bakery", { stay: 3, say: "Flour invoice" }), go("workshop", { stay: 3, say: "Strange parcel. It's ticking." }), go("post", { carry: null }), { loop: true }], "Afternoon round"),
+        S("16:30", [go("telegraph", { stay: 8, say: "Tapping out the evening telegram" }), go("post")], "Sending the evening telegram"),
         S("17:30", [go("house3")], "Home for the evening"),
       ],
     },
@@ -941,6 +943,17 @@
       ctx.fillStyle = "#c9a54a"; ctx.fillRect(sx + 4, sy - 2, 5, 5); ctx.fillRect(sx + 6, sy - 3, 1, 1); ctx.fillRect(sx + 6, sy + 3, 1, 1);
       ctx.fillStyle = turn < 1 ? "#f0d890" : "#a8832f"; ctx.fillRect(sx + 6, sy, 1, 1);
       ctx.fillStyle = "#4f8a78"; ctx.fillRect(sx + 2, sy + 2, 3, 2);
+    } else if (p.kind === "telegraph") {
+      // a telegraph pole beside the post office: crossarm with glass insulators, a wire to the roof edge and a tapping spark
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.35, y + 0.35, 0, 0.3, 0.3, 3, "#6e6a62");
+      box(x + 0.44, y + 0.44, 3, 0.12, 0.12, 40, "#5a4030");
+      box(x + 0.2, y + 0.46, 36, 0.6, 0.08, 3, "#6a4a32");
+      const tx = Math.round(cx), ty = Math.round(cy) - 39;
+      ctx.fillStyle = "#7fc0b0"; ctx.fillRect(tx - 5, ty - 2, 2, 2); ctx.fillRect(tx + 3, ty - 2, 2, 2);
+      const [wx, wy] = P(x, y + 0.5, 28);
+      ctx.strokeStyle = "#2e2a26"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx - 4, ty - 1); ctx.quadraticCurveTo((tx - 4 + wx) / 2, Math.max(ty, wy) + 5, wx, wy); ctx.stroke();
+      if (Math.floor(t * 2) % 5 === 0) { ctx.fillStyle = "#f0d890"; ctx.fillRect(tx - 5, ty - 4, 1, 1); ctx.fillRect(Math.round((tx - 4 + wx) / 2), Math.max(ty, wy) + 3, 1, 1); }
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
