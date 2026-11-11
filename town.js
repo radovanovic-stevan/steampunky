@@ -74,6 +74,7 @@
     B({ id: "gaugeshed", name: "Steamwright Gauge Shed", x: 5, y: 10, w: 2, d: 2, h: 14, wall: "#5c6a64", roof: { type: "gable", dir: "y", h: 8, color: "#b06a3b" }, door: { face: "x", v: 0.5 }, chim: [[0.6, 1.3, 10]], gauge: true, pipe: true, plates: true }),
     B({ id: "clockshop", name: "Thimble Clockmaker's Shop", x: 22, y: 11, w: 2, d: 3, h: 18, wall: "#6a4e3a", roof: { type: "gable", dir: "y", h: 10, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 14]], sign: "gear", gear: { face: "x", v: 1.5, z: 12, r: 5, teeth: 8, speed: 1.1 }, pipe: true }),
     B({ id: "dockoffice", name: "Harbour Master's Office", x: 23, y: 15, w: 2, d: 3, h: 16, wall: "#4a5a66", roof: { type: "gable", dir: "x", h: 9, color: "#8f4b35" }, door: { face: "y", u: 0.5 }, chim: [[1.4, 0.6, 12]], pipe: true, plates: true }),
+    B({ id: "caskstore", name: "Barrow's Cask Store", x: 12, y: 22, w: 3, d: 3, h: 18, wall: "#6a3a26", roof: { type: "gable", dir: "y", h: 10, color: "#3a3632" }, door: { face: "x", v: 1.5 }, sign: "cask", pipe: true }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
   for (const b of buildings) {
@@ -218,7 +219,7 @@
       look: { coat: "#3b5a3a", trim: "#e8e0d0", skin: "#e8b48a", hair: "#b8b0a0", hat: "none", beard: true },
       sched: [
         S("01:00", [{ act: "close" }, go("tavern")], "Closing up and sleeping"),
-        S("09:30", [go("bakery", { stay: 6, say: "Morning, Barnaby!" }), go("dock", { stay: 10, say: "Checking the cask delivery" }), go("tavern")], "Buying bread and casks"),
+        S("09:30", [go("bakery", { stay: 6, say: "Morning, Barnaby!" }), go("dock", { stay: 10, say: "Checking the cask delivery", carry: "cask" }), go("caskstore", { stay: 8, say: "Stacking the casks to settle", carry: null }), go("tavern")], "Buying bread and casks"),
         S("15:45", [go("noticeboard", { stay: 8, say: "Mutton stew tonight, a penny a bowl", enter: false }), go("tavern")], "Pinning up the menu"),
         S("16:45", [go("tavern"), { act: "open" }, go("crates", { stay: 5, say: "The Rusty Kettle is open!" }), go("tavern")], "Opening the tavern"),
       ],
@@ -632,6 +633,7 @@
       if (b.sign === "loaf") { ctx.fillRect(sx + 1, sy + 1, 5, 3); ctx.fillStyle = "#e8c890"; ctx.fillRect(sx + 2, sy + 1, 3, 1); }
       if (b.sign === "mug") { ctx.fillRect(sx + 1, sy + 1, 4, 4); ctx.fillRect(sx + 5, sy + 2, 1, 2); ctx.fillStyle = "#f3e6c8"; ctx.fillRect(sx + 1, sy, 4, 1); }
       if (b.sign === "letter") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(sx + 1, sy + 1, 6, 4); ctx.fillStyle = "#7a2f3a"; ctx.fillRect(sx + 3, sy + 2, 2, 2); }
+      if (b.sign === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(sx + 1, sy, 5, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(sx + 1, sy + 1, 5, 1); ctx.fillRect(sx + 1, sy + 3, 5, 1); }
       if (b.sign === "gear") { const save = ctx.lineWidth; gear(sx + 3.5, sy + 2.5, 3, 6, t, "#c9a54a"); ctx.lineWidth = save; }
     }
     // roof
@@ -1022,6 +1024,7 @@
     if (p.carry === "coal") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx, y - 8, 3, 4); ctx.fillStyle = "#1e1e22"; ctx.fillRect(hx, y - 9, 3, 1); }
     if (p.carry === "bread") { ctx.fillStyle = "#c98a3a"; ctx.fillRect(hx, y - 8, 4, 3); ctx.fillStyle = "#e8c890"; ctx.fillRect(hx + 1, y - 8, 2, 1); }
     if (p.carry === "letter") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(hx, y - 8, 3, 2); }
+    if (p.carry === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); }
     if (p.carry === "sack") { ctx.fillStyle = "#a89070"; ctx.fillRect(hx, y - 10, 4, 5); }
     if (p.carry === "pole") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx + 1, y - 24, 1, 18); ctx.fillStyle = "#ffb040"; ctx.fillRect(hx, y - 25, 3, 2); if (isNight(state.min % 1440)) lights.push({ x: hx + 1, y: y - 24, r: 10, c: "255,180,80", a: 0.8 }); }
     p.screen = [x, y - 10];
