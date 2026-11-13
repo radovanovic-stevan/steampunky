@@ -69,7 +69,7 @@
     B({ id: "post", name: "Pneumatic Post Office", x: 16, y: 10, w: 4, d: 4, h: 26, wall: "#4e5a5e", roof: { type: "flat", h: 4, color: "#3a3632" }, door: { face: "y", u: 1.5 }, tubes: true, sign: "letter", ports: true, plates: true }),
     B({ id: "house2", name: "Bunsworth House", x: 4, y: 16, w: 3, d: 3, h: 20, wall: "#9a6440", roof: { type: "gable", dir: "y", h: 12, color: "#3a3632" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 2.2, 16]], pipe: true }),
     B({ id: "house3", name: "Postmistress's House", x: 4, y: 19, w: 3, d: 3, h: 20, wall: "#5e6466", roof: { type: "gable", dir: "y", h: 12, color: "#b06a3b" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]], horn: true, plates: true }),
-    B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true }),
+    B({ id: "kiosk", name: "Fenwick Tea Kiosk", x: 4, y: 12, w: 2, d: 2, h: 16, wall: "#7b5a3c", roof: { type: "gable", dir: "x", h: 9, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.3, 0.6, 12]], sign: "mug", pipe: true, awning: true }),
     B({ id: "tavern", name: "The Rusty Kettle", x: 10, y: 16, w: 5, d: 4, h: 28, wall: "#5a3e28", roof: { type: "gable", dir: "x", h: 14, color: "#8f4b35" }, door: { face: "x", v: 1.5 }, chim: [[1.2, 1.2, 24], [3.6, 2.8, 24]], sign: "mug", pipe: true, gear: { face: "y", u: 4.3, z: 19, r: 6, teeth: 9, speed: 0.6 } }),
     B({ id: "gaugeshed", name: "Steamwright Gauge Shed", x: 5, y: 10, w: 2, d: 2, h: 14, wall: "#5c6a64", roof: { type: "gable", dir: "y", h: 8, color: "#b06a3b" }, door: { face: "x", v: 0.5 }, chim: [[0.6, 1.3, 10]], gauge: true, pipe: true, plates: true }),
     B({ id: "clockshop", name: "Thimble Clockmaker's Shop", x: 22, y: 11, w: 2, d: 3, h: 18, wall: "#6a4e3a", roof: { type: "gable", dir: "y", h: 10, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 14]], sign: "gear", gear: { face: "x", v: 1.5, z: 12, r: 5, teeth: 8, speed: 1.1 }, pipe: true }),
@@ -625,6 +625,18 @@
     // door
     faceQuad(b, b.door.face, doorA, 3, 0.5, 12, "#3b2618", OUTLINE);
     faceQuad(b, b.door.face, doorA, 13, 0.56, 2, "#c9a54a");
+    // striped canvas awning over the front, with iron brackets and a scalloped valance
+    if (b.awning) {
+      const out = 0.32, zb = h - 1, zf = h - 4, n = 6, fy = y + d;
+      for (const u of [0.15, w - 0.15]) { ctx.strokeStyle = "#2a1a10"; ctx.beginPath(); ctx.moveTo(...P(x + u, fy, zb - 6)); ctx.lineTo(...P(x + u, fy + out, zf)); ctx.stroke(); }
+      for (let k = 0; k < n; k++) {
+        const u0 = x + 0.05 + ((w - 0.1) * k) / n, u1 = x + 0.05 + ((w - 0.1) * (k + 1)) / n, col = k % 2 ? "#f3e6c8" : "#b8302a";
+        poly(ctx, [P(u0, fy, zb), P(u1, fy, zb), P(u1, fy + out, zf), P(u0, fy + out, zf)], col);
+        poly(ctx, [P(u0, fy + out, zf), P(u1, fy + out, zf), P((u0 + u1) / 2, fy + out, zf - 2)], shade(k % 2 ? "#f3e6c8" : "#b8302a", 0.8));
+      }
+      poly(ctx, [P(x + 0.05, fy, zb), P(x + w - 0.05, fy, zb), P(x + w - 0.05, fy + out, zf), P(x + 0.05, fy + out, zf)], null, OUTLINE);
+      poly(ctx, [P(x + w - 0.05, fy, zb), P(x + w - 0.05, fy + out, zf), P(x + w - 0.05, fy + out, zf - 2)], "#8a2420", OUTLINE);
+    }
     // signs
     if (b.sign) {
       const [sx, sy] = b.door.face === "y" ? P(x + doorA + 0.55, y + d, 17) : P(x + w, y + doorA + 0.55, 17);
@@ -1067,6 +1079,7 @@
     else if (r.dir === "x") pts.push([x, y + d / 2, top], [x + w, y + d / 2, top]);
     else pts.push([x + w / 2, y, top], [x + w / 2, y + d, top]);
     for (const c of b.chimneys) pts.push([c.x - 0.3, c.y - 0.3, c.z], [c.x + 0.3, c.y + 0.3, c.z]);
+    if (b.awning) pts.push([x, y + d + 0.32, h - 6], [x + w, y + d + 0.32, h - 6]);
     // convex hull of the projected points (monotone chain)
     const q = pts.map(([a, c, z]) => P(a, c, z)).sort((a, c) => a[0] - c[0] || a[1] - c[1]);
     const cross = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]);
