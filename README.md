@@ -7,7 +7,7 @@ low-resolution canvas and scaled up as pixel art, with no image files and no bui
 
 | Who | Does what |
 |---|---|
-| Ada Cogsworth, inventor | Works in the workshop and blows it up twice a day |
+| Ada Cogsworth, inventor | Works in the workshop, blows it up twice a day, and flies her new ornithopter over the fountain at 13:00 |
 | Barnaby Bunsworth, baker | Bakes from 5:00, brings hot buns to the tea kiosk at 7:30, checks the square's sundial at 9:00, delivers bread at 10:00, runs a market stall |
 | Pip Wicklow, lamplighter | Snuffs the street lamps at dawn and lights them again at dusk |
 | Odette Quill, postmistress | Two rounds of letters from the pneumatic post office, feeds the pigeons with Pip at half past one, and taps out the evening telegram at the telegraph pole at half past four |

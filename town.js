@@ -142,10 +142,10 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], flight: [10, 8],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", flight: "the square", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -158,7 +158,7 @@
         S("07:15", [go("bakery", { stay: 12, say: "One cog-shaped bun, please" }), go("workshop")], "Breakfast, then the workshop"),
         S("11:00", [{ act: "boom" }, { wait: 2 }, go("yard", { stay: 18, say: "*cough* Nearly had it!" }), go("workshop")], "Testing the steam engine"),
         S("12:00", [go("benchN", { stay: 50, say: "Pressure gauges, over sandwiches" }), go("workshop")], "Lunch with Mabel"),
-        S("13:00", [go("fountain", { stay: 45, say: "Sketching ornithopters" }), go("workshop")], "Lunch at the fountain"),
+        S("13:00", [go("flight", { stay: 45, say: "Up she goes, my little ornithopter", carry: "ornithopter" }), go("workshop", { carry: null })], "Flying her ornithopter over the square"),
         S("16:20", [{ act: "boom", big: true }, { wait: 2 }, go("yard", { stay: 15, say: "EUREKA! ...wait, no." }), go("workshop")], "Another experiment"),
         S("19:00", [go("tavern")], "Evening at the tavern"),
         S("22:30", [go("house1")], "Home to sleep"),
@@ -1039,6 +1039,25 @@
     if (p.carry === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); }
     if (p.carry === "sack") { ctx.fillStyle = "#a89070"; ctx.fillRect(hx, y - 10, 4, 5); }
     if (p.carry === "pole") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx + 1, y - 24, 1, 18); ctx.fillStyle = "#ffb040"; ctx.fillRect(hx, y - 25, 3, 2); if (isNight(state.min % 1440)) lights.push({ x: hx + 1, y: y - 24, r: 10, c: "255,180,80", a: 0.8 }); }
+    if (p.carry === "ornithopter") {
+      // held under the arm while walking; once she stops it flaps in slow circles over her head
+      const t = performance.now() / 1000;
+      const flying = !walking;
+      const ang = t * 1.6;
+      const ox = flying ? Math.round(x + Math.cos(ang) * 11) : hx + 1;
+      const oy = flying ? Math.round(y - 30 + Math.sin(ang) * 4 + Math.sin(t * 7) * 1) : y - 8;
+      const flap = flying ? Math.floor(t * 10) % 2 : 0;
+      const dir = flying ? (-Math.sin(ang) >= 0 ? 1 : -1) : p.face;
+      if (flying) { ctx.fillStyle = "rgba(0,0,0,0.18)"; ctx.fillRect(ox - 2, Math.round(y + Math.sin(ang) * 2) - 1, 4, 1); }
+      ctx.fillStyle = "#e8dcc0"; // canvas wings
+      if (flap) { ctx.fillRect(ox - 4, oy - 3, 3, 2); ctx.fillRect(ox + 2, oy - 3, 3, 2); }
+      else { ctx.fillRect(ox - 5, oy, 4, 1); ctx.fillRect(ox + 2, oy, 4, 1); }
+      ctx.fillStyle = "#6b4a2a"; ctx.fillRect(flap ? ox - 2 : ox - 3, oy - (flap ? 1 : 0), 1, 1); ctx.fillRect(flap ? ox + 2 : ox + 3, oy - (flap ? 1 : 0), 1, 1);
+      ctx.fillStyle = "#b06a3b"; ctx.fillRect(ox - 1, oy - 1, 3, 2); // copper body
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(dir > 0 ? ox + 2 : ox - 2, oy - 1, 1, 1); // brass nose
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(dir > 0 ? ox - 2 : ox + 2, oy, 1, 1); // tail
+      if (flying && Math.floor(t * 3) % 4 === 0) { ctx.fillStyle = "rgba(230,226,216,0.7)"; ctx.fillRect(dir > 0 ? ox - 3 : ox + 3, oy - 1, 1, 1); }
+    }
     p.screen = [x, y - 10];
   }
 
