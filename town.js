@@ -75,6 +75,7 @@
     B({ id: "clockshop", name: "Thimble Clockmaker's Shop", x: 22, y: 11, w: 2, d: 3, h: 18, wall: "#6a4e3a", roof: { type: "gable", dir: "y", h: 10, color: "#4f8a78" }, door: { face: "y", u: 0.5 }, chim: [[1.5, 0.7, 14]], sign: "gear", gear: { face: "x", v: 1.5, z: 12, r: 5, teeth: 8, speed: 1.1 }, pipe: true }),
     B({ id: "dockoffice", name: "Harbour Master's Office", x: 23, y: 15, w: 2, d: 3, h: 16, wall: "#4a5a66", roof: { type: "gable", dir: "x", h: 9, color: "#8f4b35" }, door: { face: "y", u: 0.5 }, chim: [[1.4, 0.6, 12]], pipe: true, plates: true }),
     B({ id: "caskstore", name: "Barrow's Cask Store", x: 12, y: 22, w: 3, d: 3, h: 18, wall: "#6a3a26", roof: { type: "gable", dir: "y", h: 10, color: "#3a3632" }, door: { face: "x", v: 1.5 }, sign: "cask", pipe: true }),
+    B({ id: "press", name: "Inkwell Print Shop", x: 4, y: 22, w: 3, d: 3, h: 20, wall: "#5a4a3e", roof: { type: "gable", dir: "y", h: 11, color: "#4f8a78" }, door: { face: "x", v: 1.5 }, chim: [[0.8, 0.8, 16]], sign: "paper", gear: { face: "y", u: 1.6, z: 13, r: 5, teeth: 8, speed: 1.3 }, pipe: true }),
   ];
   const byId = Object.fromEntries(buildings.map((b) => [b.id, b]));
   for (const b of buildings) {
@@ -249,6 +250,18 @@
         S("15:00", [go("clock", { stay: 6, say: "Oiling the hands" }), go("clockshop")], "Oiling the clocktower"),
         S("18:30", [go("tavern", { stay: 60, say: "Not a tick out of place" }), go("clockshop")], "An evening at the Kettle"),
         S("21:30", [go("clockshop")], "Home to sleep"),
+      ],
+    },
+    {
+      id: "hettie", name: "Hettie Inkwell", role: "Printer", home: "press",
+      look: { coat: "#2e2a26", trim: "#8a2420", skin: "#e8b48a", hair: "#6a3a1e", hat: "cap" },
+      sched: [
+        S("06:00", [go("press", { stay: 2, say: "Ink on the rollers" })], "Running the morning press"),
+        S("08:35", [go("post", { stay: 6, say: "Any news on the wire, Miss Quill?", enter: false }), go("press")], "Collecting the overnight wires"),
+        S("09:20", [go("fountain", { stay: 50, say: "Gazette! Read all about it!", carry: "papers" }), go("kiosk", { stay: 6, say: "A Gazette for your counter, Miss Fenwick", enter: false }), go("press", { carry: null })], "Selling the Steampunky Gazette"),
+        S("16:20", [go("telegraph", { stay: 25, carry: null, say: "What came down the wire, Odette?" }), go("press")], "Taking down the evening telegram"),
+        S("19:15", [go("tavern", { stay: 60, say: "Tomorrow's headline is a secret" }), go("press")], "An evening at the Kettle"),
+        S("21:45", [go("press")], "Home to sleep"),
       ],
     },
     {
@@ -646,6 +659,7 @@
       if (b.sign === "mug") { ctx.fillRect(sx + 1, sy + 1, 4, 4); ctx.fillRect(sx + 5, sy + 2, 1, 2); ctx.fillStyle = "#f3e6c8"; ctx.fillRect(sx + 1, sy, 4, 1); }
       if (b.sign === "letter") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(sx + 1, sy + 1, 6, 4); ctx.fillStyle = "#7a2f3a"; ctx.fillRect(sx + 3, sy + 2, 2, 2); }
       if (b.sign === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(sx + 1, sy, 5, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(sx + 1, sy + 1, 5, 1); ctx.fillRect(sx + 1, sy + 3, 5, 1); }
+      if (b.sign === "paper") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(sx + 1, sy, 6, 5); ctx.fillStyle = "#3b2618"; ctx.fillRect(sx + 2, sy + 1, 4, 1); ctx.fillRect(sx + 2, sy + 3, 2, 1); ctx.fillRect(sx + 5, sy + 3, 1, 1); }
       if (b.sign === "gear") { const save = ctx.lineWidth; gear(sx + 3.5, sy + 2.5, 3, 6, t, "#c9a54a"); ctx.lineWidth = save; }
     }
     // roof
@@ -1037,6 +1051,7 @@
     if (p.carry === "bread") { ctx.fillStyle = "#c98a3a"; ctx.fillRect(hx, y - 8, 4, 3); ctx.fillStyle = "#e8c890"; ctx.fillRect(hx + 1, y - 8, 2, 1); }
     if (p.carry === "letter") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(hx, y - 8, 3, 2); }
     if (p.carry === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); }
+    if (p.carry === "papers") { ctx.fillStyle = "#e8dcc0"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#6a5a4a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); ctx.fillStyle = "#8a2420"; ctx.fillRect(hx + 1, y - 10, 2, 5); }
     if (p.carry === "sack") { ctx.fillStyle = "#a89070"; ctx.fillRect(hx, y - 10, 4, 5); }
     if (p.carry === "pole") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx + 1, y - 24, 1, 18); ctx.fillStyle = "#ffb040"; ctx.fillRect(hx, y - 25, 3, 2); if (isNight(state.min % 1440)) lights.push({ x: hx + 1, y: y - 24, r: 10, c: "255,180,80", a: 0.8 }); }
     if (p.carry === "ornithopter") {
