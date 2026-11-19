@@ -108,6 +108,7 @@
   prop("sundial", 12, 8);
   prop("telegraph", 20, 12);
   prop("weathervane", 17, 20);
+  prop("streetclock", 11, 13);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -982,6 +983,27 @@
       const [wx, wy] = P(x, y + 0.5, 28);
       ctx.strokeStyle = "#2e2a26"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx - 4, ty - 1); ctx.quadraticCurveTo((tx - 4 + wx) / 2, Math.max(ty, wy) + 5, wx, wy); ctx.stroke();
       if (Math.floor(t * 2) % 5 === 0) { ctx.fillStyle = "#f0d890"; ctx.fillRect(tx - 5, ty - 4, 1, 1); ctx.fillRect(Math.round((tx - 4 + wx) / 2), Math.max(ty, wy) + 3, 1, 1); }
+    } else if (p.kind === "streetclock") {
+      // Ignatius Thimble's street clock: a cast-iron post by the square's tram stop with a brass case and two faces that keep the town's time
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 7, 3, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.32, y + 0.32, 0, 0.36, 0.36, 3, "#77726a");
+      box(x + 0.4, y + 0.4, 3, 0.2, 0.2, 3, "#2e2a26");
+      box(x + 0.45, y + 0.45, 6, 0.1, 0.1, 22, "#2e2a26");
+      box(x + 0.41, y + 0.41, 16, 0.18, 0.18, 1, "#c9a54a");
+      box(x + 0.3, y + 0.3, 28, 0.4, 0.4, 10, "#a8602e");
+      box(x + 0.27, y + 0.27, 38, 0.46, 0.46, 1, "#c9a54a");
+      const night = isNight(m);
+      const hr = ((m / 60) % 12) / 12 * Math.PI * 2 - Math.PI / 2, mn = (m % 60) / 60 * Math.PI * 2 - Math.PI / 2;
+      for (const [fx, fy] of [P(x + 0.5, y + 0.7, 33), P(x + 0.7, y + 0.5, 33)]) {
+        ctx.fillStyle = "#c9a54a"; ctx.beginPath(); ctx.arc(fx, fy, 3.6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = night ? "#ffe6a0" : "#f3e6c8"; ctx.beginPath(); ctx.arc(fx, fy, 2.8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#241708"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx + Math.cos(hr) * 1.6, fy + Math.sin(hr) * 1.6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(fx + Math.cos(mn) * 2.5, fy + Math.sin(mn) * 2.5); ctx.stroke();
+        if (night) lights.push({ x: fx, y: fy, r: 10, c: "255,220,140", a: 0.6 });
+      }
+      const [kx, ky] = P(x + 0.5, y + 0.5, 39);
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(kx), Math.round(ky) - 4, 1, 4); ctx.fillRect(Math.round(kx) - 1, Math.round(ky) - 3, 3, 1);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
