@@ -109,6 +109,8 @@
   prop("telegraph", 20, 12);
   prop("weathervane", 17, 20);
   prop("streetclock", 11, 13);
+  prop("vegbed", 8, 22, { crop: "cabbage" }); prop("vegbed", 9, 22, { crop: "beans" }); prop("vegbed", 8, 23, { crop: "carrot" }); prop("vegbed", 9, 23, { crop: "cabbage" });
+  prop("scarecrow", 10, 22);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
   const lamps = [];
   lampSpots.forEach(([x, y]) => { const p = { kind: "lamp", x, y, lit: false }; props.push(p); lamps.push(p); });
@@ -144,10 +146,10 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], flight: [10, 8],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], flight: [10, 8], garden: [7, 22],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", flight: "the square", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", garden: "the vegetable patch", flight: "the square", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -183,6 +185,7 @@
       look: { coat: "#2e3a2e", trim: "#b06a3b", skin: "#f0c9a0", hair: "#c2502a", hat: "cap" },
       sched: [
         S("05:30", [{ lamps: "snuff" }, go("cottageN")], "Snuffing the street lamps"),
+        S("07:50", [go("garden", { stay: 45, say: "Water for the cabbages", carry: "can" }), go("cottageN", { carry: null })], "Watering the vegetable patch"),
         S("13:30", [go("pigeons", { stay: 50, say: "Feeding the pigeons" }), go("clock"), { wait: 40 }, go("cottageN")], "Pigeons, then winding the clock"),
         S("18:40", [{ lamps: "light", carry: "pole" }, go("tavern", { carry: null })], "Lighting the street lamps"),
         S("22:45", [go("cottageN")], "Home to sleep"),
@@ -1004,6 +1007,34 @@
       }
       const [kx, ky] = P(x + 0.5, y + 0.5, 39);
       ctx.fillStyle = "#c9a54a"; ctx.fillRect(Math.round(kx), Math.round(ky) - 4, 1, 4); ctx.fillRect(Math.round(kx) - 1, Math.round(ky) - 3, 3, 1);
+    } else if (p.kind === "vegbed") {
+      // Pip's vegetable patch: plank-edged beds of dark soil with cabbages, carrots and beans on canes
+      box(x + 0.06, y + 0.06, 0, 0.88, 0.88, 2, "#6b4a2a", { top: "#3a2818" });
+      const sway = Math.sin(t * 1.1 + x * 1.7 + y) > 0.5 ? 1 : 0;
+      for (const [u, v] of [[0.28, 0.28], [0.72, 0.28], [0.28, 0.72], [0.72, 0.72], [0.5, 0.5]]) {
+        const [px, py] = P(x + u, y + v, 2), qx = Math.round(px), qy = Math.round(py);
+        if (p.crop === "cabbage") {
+          ctx.fillStyle = "#4a7a3a"; ctx.fillRect(qx - 3, qy - 3, 6, 3); ctx.fillStyle = "#7aa85a"; ctx.fillRect(qx - 2, qy - 4, 4, 3); ctx.fillStyle = "#a8c880"; ctx.fillRect(qx - 1, qy - 3, 2, 1);
+        } else if (p.crop === "carrot") {
+          ctx.fillStyle = "#d0702a"; ctx.fillRect(qx - 1, qy - 1, 2, 1);
+          ctx.fillStyle = "#5a9a42"; ctx.fillRect(qx - 2 + sway, qy - 4, 1, 3); ctx.fillRect(qx + sway, qy - 5, 1, 4); ctx.fillRect(qx + 2 + sway, qy - 4, 1, 3);
+        } else if (u !== 0.5) {
+          ctx.fillStyle = "#8a6a3a"; ctx.fillRect(qx, qy - 16, 1, 16);
+          ctx.fillStyle = "#4a7a3a"; for (let k = 2; k < 15; k += 3) ctx.fillRect(qx - 1 + ((k + sway) % 2), qy - k - 2, 2, 2);
+          ctx.fillStyle = "#c83a2a"; ctx.fillRect(qx + 1, qy - 9, 1, 1); ctx.fillRect(qx - 1, qy - 13, 1, 1);
+        }
+      }
+    } else if (p.kind === "scarecrow") {
+      // a scarecrow in a battered top hat and a patched coat, guarding the patch from Pip's own pigeons
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+      box(x + 0.45, y + 0.45, 0, 0.1, 0.1, 22, "#6b4a2a");
+      const sx = Math.round(cx), sy = Math.round(cy), lean = Math.sin(t * 0.8 + x) > 0.7 ? 1 : 0;
+      ctx.fillStyle = "#6b4a2a"; ctx.fillRect(sx - 9, sy - 19, 19, 2);
+      ctx.fillStyle = "#5a6a3a"; ctx.fillRect(sx - 4, sy - 20, 9, 9); ctx.fillStyle = "#8a2420"; ctx.fillRect(sx + 1, sy - 16, 3, 3);
+      ctx.fillStyle = "#5a6a3a"; ctx.fillRect(sx - 8, sy - 19, 4, 2); ctx.fillRect(sx + 5, sy - 19, 4, 2);
+      ctx.fillStyle = "#d8b860"; ctx.fillRect(sx - 9 - lean, sy - 18, 1, 3); ctx.fillRect(sx + 9 + lean, sy - 18, 1, 3); ctx.fillRect(sx - 3, sy - 11, 1, 2); ctx.fillRect(sx + 3, sy - 11, 1, 2);
+      ctx.fillStyle = "#d8c08a"; ctx.fillRect(sx - 2, sy - 25, 5, 5); ctx.fillStyle = "#2a1a10"; ctx.fillRect(sx - 1, sy - 23, 1, 1); ctx.fillRect(sx + 1, sy - 23, 1, 1);
+      ctx.fillStyle = "#1a1a1e"; ctx.fillRect(sx - 3, sy - 26, 7, 1); ctx.fillRect(sx - 2 + lean, sy - 30, 5, 4); ctx.fillStyle = "#c9a54a"; ctx.fillRect(sx - 2 + lean, sy - 27, 5, 1);
     } else if (p.kind === "mast") {
       const top = 66;
       const legs = [[x + 0.15, y + 0.15], [x + 0.85, y + 0.15], [x + 0.85, y + 0.85], [x + 0.15, y + 0.85]];
@@ -1074,6 +1105,14 @@
     if (p.carry === "letter") { ctx.fillStyle = "#f3e6c8"; ctx.fillRect(hx, y - 8, 3, 2); }
     if (p.carry === "cask") { ctx.fillStyle = "#8a5a32"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); }
     if (p.carry === "papers") { ctx.fillStyle = "#e8dcc0"; ctx.fillRect(hx, y - 10, 4, 5); ctx.fillStyle = "#6a5a4a"; ctx.fillRect(hx, y - 9, 4, 1); ctx.fillRect(hx, y - 7, 4, 1); ctx.fillStyle = "#8a2420"; ctx.fillRect(hx + 1, y - 10, 2, 5); }
+    if (p.carry === "can") {
+      // a copper watering can; once Pip stops it tips and sprinkles
+      const tip = walking ? 0 : 1;
+      ctx.fillStyle = "#a8602e"; ctx.fillRect(hx, y - 9 + tip, 4, 4); ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx, y - 10 + tip, 4, 1);
+      const sx = p.face > 0 ? hx + 4 : hx - 2;
+      ctx.fillStyle = "#8a4a22"; ctx.fillRect(sx, y - 8 + tip * 2, 2, 1);
+      if (!walking) { const tt = performance.now() / 1000; ctx.fillStyle = "rgba(200,230,255,0.85)"; for (let k = 0; k < 3; k++) { const ph = (tt * 1.4 + k / 3) % 1; ctx.fillRect(sx + (p.face > 0 ? 1 + k : -k), Math.round(y - 6 + ph * 6), 1, 1); } }
+    }
     if (p.carry === "sack") { ctx.fillStyle = "#a89070"; ctx.fillRect(hx, y - 10, 4, 5); }
     if (p.carry === "pole") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx + 1, y - 24, 1, 18); ctx.fillStyle = "#ffb040"; ctx.fillRect(hx, y - 25, 3, 2); if (isNight(state.min % 1440)) lights.push({ x: hx + 1, y: y - 24, r: 10, c: "255,180,80", a: 0.8 }); }
     if (p.carry === "ornithopter") {
