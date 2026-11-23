@@ -16,6 +16,7 @@ low-resolution canvas and scaled up as pixel art, with no image files and no bui
 | Tilly Fenwick, tea seller | Runs the tea kiosk, takes in Barnaby's morning buns, does a tea round at 10:30 and serves the bench at noon, and pours Captain Rook his afternoon tea |
 | Ignatius Thimble, clockmaker | Opens his clock shop at 8:00, checks the sundial at 8:50, winds the clocktower at 9:30 and oils its hands at 15:00 |
 | Hettie Inkwell, printer | Prints the Steampunky Gazette at the Inkwell Print Shop from 6:00, collects the wires at the post office, sells papers by the fountain at 9:20, and takes down Odette's evening telegram at the telegraph pole |
+| Crumpet, bakery cat | Suns on the bakery step at dawn, trails Fergus to the docks for fish scraps at 9:35, begs crumbs at the lunch bench, watches the pigeons, guards Barnaby's market stall and sleeps by the Kettle's hearth in the evening |
 | Captain Rook, airship captain | Arrives by airship at 10:00, signs the harbour book at the Harbour Master's Office, and leaves at 16:00 with tea at the kiosk before he goes |
 
 There's also a steam tram, an hourly bell, a day/night cycle and smoke from every chimney.

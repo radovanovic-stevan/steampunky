@@ -147,9 +147,10 @@
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
     mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], flight: [10, 8], garden: [7, 22],
+    catstep: [7, 8], catbench: [12, 9], catpigeons: [12, 9], catmarket: [11, 11],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", garden: "the vegetable patch", flight: "the square", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", garden: "the vegetable patch", flight: "the square", catstep: "the bakery step", catbench: "the bench", catpigeons: "the square", catmarket: "the square", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -266,6 +267,19 @@
         S("16:20", [go("telegraph", { stay: 25, carry: null, say: "What came down the wire, Odette?" }), go("press")], "Taking down the evening telegram"),
         S("19:15", [go("tavern", { stay: 60, say: "Tomorrow's headline is a secret" }), go("press")], "An evening at the Kettle"),
         S("21:45", [go("press")], "Home to sleep"),
+      ],
+    },
+    {
+      id: "crumpet", name: "Crumpet", role: "Bakery cat", home: "bakery",
+      look: { cat: true, coat: "#d07a32", trim: "#8a4a1e", skin: "#f3e6c8" },
+      sched: [
+        S("06:30", [go("catstep", { stay: 50, say: "Purr" }), go("bakery")], "Warming up on the bakery step"),
+        S("09:35", [go("dock", { stay: 18, say: "Mrrow? Any fish?" }), go("caskstore", { stay: 10, say: "Purr", enter: false }), go("catbench", { stay: 25, say: "Mrrp" }), go("bakery")], "Following Fergus to the docks for fish scraps"),
+        S("12:05", [go("catbench", { stay: 40, say: "Mrrp? Crumbs?" }), go("bakery")], "Begging crumbs from Ada and Mabel"),
+        S("13:35", [go("catpigeons", { stay: 30, say: "Chirr chirr" }), go("bakery")], "Watching Pip's pigeons very closely"),
+        S("15:05", [go("catmarket", { stay: 35, say: "Purr" }), go("bakery")], "Guarding Barnaby's market stall"),
+        S("18:20", [go("tavern")], "Curled up by the Kettle's hearth"),
+        S("22:40", [go("bakery")], "Home to the warm ovens"),
       ],
     },
     {
@@ -1074,6 +1088,31 @@
     const x = Math.round(fx), y = Math.round(fy);
     const L = p.look, walking = p.path && p.path.length;
     const ph = walking ? Math.floor(p.step) % 2 : 0;
+    if (L.cat) {
+      // a small ginger cat: trots when walking, sits up with its tail curled when it stops
+      const t = performance.now() / 1000, d = p.face;
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(x - 3, y - 1, 7, 1);
+      if (walking) {
+        ctx.fillStyle = L.trim; ctx.fillRect(x - 3, y - 2 + ph, 1, 2 - ph); ctx.fillRect(x + 2, y - 2 + (1 - ph), 1, 1 + ph); // legs
+        ctx.fillStyle = L.coat; ctx.fillRect(x - 3, y - 5, 7, 3); // body
+        ctx.fillStyle = L.trim; ctx.fillRect(x - 1, y - 5, 1, 1); ctx.fillRect(x + 1, y - 5, 1, 1); // stripes
+        ctx.fillStyle = L.coat; ctx.fillRect(d > 0 ? x + 3 : x - 5, y - 7, 3, 3); // head
+        ctx.fillRect(d > 0 ? x + 3 : x - 5, y - 8, 1, 1); ctx.fillRect(d > 0 ? x + 5 : x - 3, y - 8, 1, 1); // ears
+        ctx.fillStyle = "#2a2a1a"; ctx.fillRect(d > 0 ? x + 5 : x - 5, y - 6, 1, 1);
+        ctx.fillStyle = L.coat; ctx.fillRect(d > 0 ? x - 4 : x + 4, y - 7, 1, 3); // tail up
+      } else {
+        const sw = Math.floor(t * 1.5) % 4 === 0 ? 1 : 0;
+        ctx.fillStyle = L.coat; ctx.fillRect(x - 2, y - 6, 5, 6); // sitting body
+        ctx.fillStyle = L.skin; ctx.fillRect(d > 0 ? x + 1 : x - 1, y - 4, 2, 3); // pale chest
+        ctx.fillStyle = L.trim; ctx.fillRect(x - 2, y - 4, 1, 1); ctx.fillRect(x - 2, y - 2, 1, 1);
+        ctx.fillStyle = L.coat; ctx.fillRect(x - 2, y - 9, 5, 3); // head
+        ctx.fillRect(x - 2, y - 10, 1, 1); ctx.fillRect(x + 2, y - 10, 1, 1); // ears
+        ctx.fillStyle = "#2a2a1a"; ctx.fillRect(x - 1, y - 8, 1, 1); ctx.fillRect(x + 1, y - 8, 1, 1);
+        ctx.fillStyle = L.coat; ctx.fillRect(d > 0 ? x - 4 : x + 3, y - 1, 2, 1); ctx.fillRect(d > 0 ? x - 4 - sw : x + 4 + sw, y - 2, 1, 1); // tail
+      }
+      p.screen = [x, y - 2];
+      return;
+    }
     ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(x - 3, y - 1, 7, 2);
     // legs
     ctx.fillStyle = "#2a2220";
