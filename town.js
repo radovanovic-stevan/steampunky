@@ -109,6 +109,7 @@
   prop("telegraph", 20, 12);
   prop("weathervane", 17, 20);
   prop("streetclock", 11, 13);
+  prop("watertower", 22, 5);
   prop("vegbed", 8, 22, { crop: "cabbage" }); prop("vegbed", 9, 22, { crop: "beans" }); prop("vegbed", 8, 23, { crop: "carrot" }); prop("vegbed", 9, 23, { crop: "cabbage" });
   prop("scarecrow", 10, 22);
   const lampSpots = [[6, 5], [14, 5], [6, 13], [8, 7], [14, 7], [8, 13], [14, 13], [6, 15], [14, 15], [16, 15], [20, 15], [21, 7], [4, 15], [2, 15]];
@@ -146,11 +147,11 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], flight: [10, 8], garden: [7, 22],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], watertower: [22, 6], flight: [10, 8], garden: [7, 22],
     catstep: [7, 8], catbench: [12, 9], catpigeons: [12, 9], catmarket: [11, 11],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", garden: "the vegetable patch", flight: "the square", catstep: "the bakery step", catbench: "the bench", catpigeons: "the square", catmarket: "the square", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", watertower: "the water tower", garden: "the vegetable patch", flight: "the square", catstep: "the bakery step", catbench: "the bench", catpigeons: "the square", catmarket: "the square", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -216,6 +217,8 @@
         S("14:30", [go("gaugeshed", { stay: 8, say: "Checking the gauges against the master dial" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", enter: false }), { loop: true }], "Calibrating gauges in the shed"),
         S("15:30", [go("pump", { stay: 6, say: "Fresh water for the boiler" }), go("boiler", { stay: 3, say: "Topping up the tank", enter: false })], "Fetching water from the pump"),
         S("15:50", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
+        S("17:10", [go("watertower", { stay: 10, say: "Letting the tower down into the boiler", act: "tower" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", enter: false })], "Opening the water tower valve"),
+        S("17:35", [go("coal", { stay: 4, say: "Shovelling coal", carry: "coal" }), go("boiler", { stay: 4, say: "Stoking the boiler", act: "stoke", carry: null, enter: false }), { loop: true }], "Keeping the boiler fed"),
         S("18:00", [go("tavern")], "A pint at the Kettle"),
         S("21:30", [go("cottageNE")], "Home to sleep"),
       ],
@@ -302,7 +305,7 @@
   }
 
   // ---------------------------------------------------------------- world state
-  const state = { walls: false, mouse: null, min: 7 * 60 + 40, speed: 1, stoke: 0, tavernOpen: false, followId: null, hoverId: null, selId: null, lastHour: -1 };
+  const state = { walls: false, mouse: null, min: 7 * 60 + 40, speed: 1, stoke: 0, tower: 0, tavernOpen: false, followId: null, hoverId: null, selId: null, lastHour: -1 };
   const particles = [];
   const floaters = []; // world-anchored text bubbles (BOOM!, bell)
 
@@ -342,6 +345,7 @@
     if (s.act === "open") state.tavernOpen = true;
     if (s.act === "close") state.tavernOpen = false;
     if (s.act === "boom") boom(s.big);
+    if (s.act === "tower") { state.tower = 1; const w = props.find((q) => q.kind === "watertower"); puff({ x: w.x + 0.5, y: w.y + 0.5, z: 66 }, 10, "#e4e0d8"); }
   }
 
   function updatePerson(p, dt) {
@@ -1000,6 +1004,38 @@
       const [wx, wy] = P(x, y + 0.5, 28);
       ctx.strokeStyle = "#2e2a26"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx - 4, ty - 1); ctx.quadraticCurveTo((tx - 4 + wx) / 2, Math.max(ty, wy) + 5, wx, wy); ctx.stroke();
       if (Math.floor(t * 2) % 5 === 0) { ctx.fillStyle = "#f0d890"; ctx.fillRect(tx - 5, ty - 4, 1, 1); ctx.fillRect(Math.round((tx - 4 + wx) / 2), Math.max(ty, wy) + 3, 1, 1); }
+    } else if (p.kind === "watertower") {
+      // Mabel Steamwright's water tower: a riveted copper tank on four iron legs beside the boiler house, with a ladder, a level float and a feed pipe
+      ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
+      const LZ = 34;
+      for (const [lx, ly] of [[0.14, 0.14], [0.78, 0.14], [0.14, 0.78], [0.78, 0.78]]) { box(x + lx - 0.02, y + ly - 0.02, 0, 0.12, 0.12, 2, "#6e6a62"); box(x + lx, y + ly, 2, 0.08, 0.08, LZ - 2, "#2e2a26"); }
+      ctx.strokeStyle = "#3a3632";
+      for (const z of [11, 23]) { const a = P(x + 0.18, y + 0.82, z), b = P(x + 0.82, y + 0.82, z), c2 = P(x + 0.82, y + 0.18, z); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c2[0], c2[1]); ctx.stroke(); }
+      { const a = P(x + 0.18, y + 0.82, 2), b = P(x + 0.82, y + 0.82, LZ), c2 = P(x + 0.82, y + 0.82, 2), d = P(x + 0.82, y + 0.18, LZ); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.moveTo(c2[0], c2[1]); ctx.lineTo(d[0], d[1]); ctx.stroke(); }
+      // feed pipe down the middle, with a brass valve wheel at hand height
+      box(x + 0.46, y + 0.46, 0, 0.1, 0.1, LZ, "#a8602e");
+      const [vx, vy] = P(x + 0.56, y + 0.56, 9); ctx.strokeStyle = "#c9a54a"; ctx.beginPath(); ctx.arc(vx + 1, vy, 2.5, 0, Math.PI * 2); ctx.stroke();
+      // the tank
+      const rx = 11, ht = 20, ty = Math.round(cy - LZ);
+      const g = ctx.createLinearGradient(cx - rx, 0, cx + rx, 0);
+      g.addColorStop(0, "#d08a4a"); g.addColorStop(0.45, "#a8602e"); g.addColorStop(1, "#5a2e16");
+      ctx.fillStyle = g; ctx.fillRect(cx - rx, ty - ht, rx * 2, ht);
+      ctx.beginPath(); ctx.ellipse(cx, ty, rx, rx / 2, 0, 0, Math.PI); ctx.fill(); ctx.strokeStyle = OUTLINE; ctx.stroke();
+      for (const z of [3, ht / 2, ht - 2]) { ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - rx, ty - z, rx * 2, 1); for (let k = -rx + 2; k < rx; k += 4) { ctx.fillStyle = "#f0d890"; ctx.fillRect(cx + k, ty - z, 1, 1); } }
+      // level float: drops when Mabel lets the water down, then fills back up from the pump main
+      const level = 1 - state.tower * 0.8, gx = cx - 6, gh = ht - 6;
+      ctx.fillStyle = "#2a1a10"; ctx.fillRect(gx - 1, ty - ht + 3, 3, gh);
+      ctx.fillStyle = "#7fc0b0"; ctx.fillRect(gx, ty - 3 - Math.round(gh * level), 1, Math.round(gh * level));
+      // conical roof with a finial
+      poly(ctx, [[cx - rx - 1, ty - ht], [cx, ty - ht - 13], [cx + rx + 1, ty - ht]], "#4f8a78", OUTLINE);
+      poly(ctx, [[cx, ty - ht - 13], [cx + rx + 1, ty - ht], [cx + 2, ty - ht + 2]], "#3d6e60");
+      ctx.fillStyle = "#4f8a78"; ctx.beginPath(); ctx.ellipse(cx, ty - ht, rx + 1, (rx + 1) / 2, 0, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(cx - 1, ty - ht - 17, 2, 4); ctx.fillRect(cx - 2, ty - ht - 18, 4, 1);
+      // ladder up the front leg to the rim
+      const la = P(x + 0.86, y + 0.62, 0), lb = P(x + 0.86, y + 0.62, LZ + 4);
+      ctx.fillStyle = "#3a3632"; ctx.fillRect(Math.round(la[0]) + 2, Math.round(lb[1]), 1, Math.round(la[1] - lb[1])); ctx.fillRect(Math.round(la[0]) + 5, Math.round(lb[1]) - 1, 1, Math.round(la[1] - lb[1]));
+      for (let z = 3; z < LZ + 3; z += 4) { const r = P(x + 0.86, y + 0.62, z); ctx.fillRect(Math.round(r[0]) + 2, Math.round(r[1]), 4, 1); }
+      if (isNight(m)) { ctx.fillStyle = "#e85a3a"; ctx.fillRect(cx, ty - ht - 19, 1, 1); lights.push({ x: cx, y: ty - ht - 19, r: 6, c: "232,90,58", a: 0.7 }); }
     } else if (p.kind === "streetclock") {
       // Ignatius Thimble's street clock: a cast-iron post by the square's tram stop with a brass case and two faces that keep the town's time
       ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(cx, cy, 7, 3, 0, 0, Math.PI * 2); ctx.fill();
@@ -1294,7 +1330,7 @@
     // depth-sorted scene
     const items = [];
     for (const b of buildings) items.push({ x0: b.x, y0: b.y, x1: b.x + b.w, y1: b.y + b.d, h: b.h + (b.roof.h || 0) + 100, draw: () => drawBuildingItem(b, m, t) });
-    for (const p of props) items.push({ x0: p.x + 0.1, y0: p.y + 0.1, x1: p.x + 0.9, y1: p.y + 0.9, h: p.kind === "mast" ? 80 : 40, draw: () => drawProp(p, m, t) });
+    for (const p of props) items.push({ x0: p.x + 0.1, y0: p.y + 0.1, x1: p.x + 0.9, y1: p.y + 0.9, h: p.kind === "mast" || p.kind === "watertower" ? 80 : 40, draw: () => drawProp(p, m, t) });
     for (const p of people) if (!p.inside) items.push({ x0: p.x - 0.15, y0: p.y - 0.15, x1: p.x + 0.15, y1: p.y + 0.15, h: 24, draw: () => drawPerson(p) });
     items.push({ x0: tram.x - 0.8, y0: 14.18, x1: tram.x + 0.8, y1: 14.82, h: 30, draw: () => drawTram(m) });
     for (const q of pipePieces) items.push({ x0: q.x0, y0: q.y0, x1: q.x1, y1: q.y1, h: PIPE_Z + 6, draw: () => drawPipe(q) });
@@ -1478,6 +1514,7 @@
       const steps = Math.max(1, Math.ceil(dt / 0.5));
       for (let k = 0; k < steps; k++) { for (const p of people) updatePerson(p, dt / steps); updateTram(dt / steps); }
       state.stoke = Math.max(0, state.stoke - dt * 0.08);
+      state.tower = Math.max(0, state.tower - dt * 0.012);
       for (const b of buildings) b.occ = 0;
       for (const p of people) if (p.inside && byId[p.inside]) byId[p.inside].occ++;
       // chimney smoke
