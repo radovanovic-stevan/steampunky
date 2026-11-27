@@ -147,11 +147,11 @@
   // named places people walk to
   const places = {
     coal: [21, 14], yard: [4, 6], fountain: [10, 10], benchN: [11, 9], benchS: [11, 11], pigeons: [12, 10],
-    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], watertower: [22, 6], flight: [10, 8], garden: [7, 22],
+    mast: [18, 18], dock: [17, 17], market: [10, 11], crates: [20, 20], pump: [13, 9], watchspot: [10, 9], sundial: [12, 9], noticeboard: [9, 10], telegraph: [20, 14], watertower: [22, 6], flight: [10, 8], garden: [7, 22],
     catstep: [7, 8], catbench: [12, 9], catpigeons: [12, 9], catmarket: [11, 11],
   };
   const placeTile = (id) => (byId[id] ? byId[id].doorTile : id === "airship" ? places.mast : places[id]);
-  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", watertower: "the water tower", garden: "the vegetable patch", flight: "the square", catstep: "the bakery step", catbench: "the bench", catpigeons: "the square", catmarket: "the square", crates: "the crates", airship: "the airship" }[id] || id);
+  const placeName = (id) => (byId[id] ? byId[id].name : { coal: "the coal pile", yard: "the workshop yard", fountain: "the fountain", benchN: "the bench", benchS: "the bench", pigeons: "the square", mast: "the mooring mast", dock: "the docks", market: "the square", pump: "the town pump", watchspot: "the fountain", sundial: "the sundial", noticeboard: "the noticeboard", telegraph: "the telegraph pole", watertower: "the water tower", garden: "the vegetable patch", flight: "the square", catstep: "the bakery step", catbench: "the bench", catpigeons: "the square", catmarket: "the square", crates: "the crates", airship: "the airship" }[id] || id);
 
   // ---------------------------------------------------------------- townsfolk
   const S = (at, steps, label) => ({ at: hm(at), steps, label });
@@ -255,6 +255,7 @@
         S("08:50", [go("sundial", { stay: 8, say: "The sun is four minutes slow" }), go("clockshop")], "Checking the sundial against his watch"),
         S("09:30", [go("clock", { stay: 8, say: "Winding the great spring" }), go("clockshop")], "Winding the clocktower"),
         S("12:00", [go("kiosk", { stay: 14, say: "Tea, and a moment's quiet", enter: false }), go("clockshop")], "Tea at the kiosk"),
+        S("13:00", [go("watchspot", { stay: 22, say: "Your watch is two minutes fast, Captain", carry: "watch" }), go("clockshop", { carry: null })], "Setting Captain Rook's pocket watch"),
         S("15:00", [go("clock", { stay: 6, say: "Oiling the hands" }), go("clockshop")], "Oiling the clocktower"),
         S("18:30", [go("tavern", { stay: 60, say: "Not a tick out of place" }), go("clockshop")], "An evening at the Kettle"),
         S("21:30", [go("clockshop")], "Home to sleep"),
@@ -291,7 +292,7 @@
       sched: [
         S("00:00", [go("airship")], "Away on the airship"),
         S("10:10", [go("dock", { stay: 6, say: "Ahoy, Steampunky!" }), go("dockoffice", { stay: 8, say: "Signing the harbour book" }), go("post", { stay: 10, say: "Air mail, three sacks", carry: "sack" }), go("tavern", { carry: null })], "Unloading the air mail"),
-        S("13:00", [go("fountain", { stay: 30, say: "Lovely weather for flying" }), go("clock", { stay: 4, say: "Setting my pocket watch" }), go("tavern")], "A stroll around town"),
+        S("13:00", [go("fountain", { stay: 30, say: "Two minutes fast, Mr Thimble? Never" }), go("clock", { stay: 4, say: "Setting my pocket watch" }), go("tavern")], "A stroll around town"),
         S("14:20", [go("kiosk", { stay: 18, say: "Strong tea, two sugars, Miss Fenwick", enter: false }), go("tavern")], "Tea at the Fenwick kiosk"),
         S("15:20", [go("airship")], "Back aboard the airship"),
       ],
@@ -1187,6 +1188,18 @@
       const sx = p.face > 0 ? hx + 4 : hx - 2;
       ctx.fillStyle = "#8a4a22"; ctx.fillRect(sx, y - 8 + tip * 2, 2, 1);
       if (!walking) { const tt = performance.now() / 1000; ctx.fillStyle = "rgba(200,230,255,0.85)"; for (let k = 0; k < 3; k++) { const ph = (tt * 1.4 + k / 3) % 1; ctx.fillRect(sx + (p.face > 0 ? 1 + k : -k), Math.round(y - 6 + ph * 6), 1, 1); } }
+    }
+    if (p.carry === "watch") {
+      // a brass pocket watch on a chain; walking it sits in the hand, standing it is held up and swings while he reads it
+      const t = performance.now() / 1000;
+      const sw = walking ? 0 : Math.round(Math.sin(t * 3) * 1.4);
+      const top = walking ? y - 9 : y - 15;
+      ctx.fillStyle = "#c9a54a"; ctx.fillRect(hx + 1, top, 1, 3);
+      const wx = hx + sw, wy = top + 3;
+      ctx.fillStyle = "#8a6a2a"; ctx.fillRect(wx, wy, 4, 4);
+      ctx.fillStyle = "#e0c060"; ctx.fillRect(wx, wy, 3, 3);
+      ctx.fillStyle = "#f3ead0"; ctx.fillRect(wx + 1, wy + 1, 1, 1);
+      if (!walking && Math.floor(t * 2) % 2) { ctx.fillStyle = "#fff4c0"; ctx.fillRect(wx + 3, wy - 1, 1, 1); }
     }
     if (p.carry === "sack") { ctx.fillStyle = "#a89070"; ctx.fillRect(hx, y - 10, 4, 5); }
     if (p.carry === "pole") { ctx.fillStyle = "#6b4a2a"; ctx.fillRect(hx + 1, y - 24, 1, 18); ctx.fillStyle = "#ffb040"; ctx.fillRect(hx, y - 25, 3, 2); if (isNight(state.min % 1440)) lights.push({ x: hx + 1, y: y - 24, r: 10, c: "255,180,80", a: 0.8 }); }
